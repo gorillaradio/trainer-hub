@@ -15,8 +15,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import TenantLayout from '@/layouts/tenant-layout';
 import type { Student } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
+import { format, parse } from 'date-fns';
+import { it } from 'date-fns/locale';
 import { Pencil, Trash2 } from 'lucide-react';
 import type { ReactNode } from 'react';
+
+function formatDate(value: string | null): string | null {
+    if (!value) return null;
+    return format(parse(value, 'yyyy-MM-dd', new Date()), 'dd/MM/yyyy', { locale: it });
+}
 
 type Props = {
     student: Student;
@@ -108,7 +115,7 @@ export default function StudentsShow({ student }: Props) {
                                 <Field label="Cognome" value={student.last_name} />
                                 <Field label="Email" value={student.email} />
                                 <Field label="Telefono" value={student.phone} />
-                                <Field label="Data di nascita" value={student.date_of_birth} />
+                                <Field label="Data di nascita" value={formatDate(student.date_of_birth)} />
                                 <Field label="Codice fiscale" value={student.fiscal_code} />
                             </dl>
                         </CardContent>
@@ -141,7 +148,7 @@ export default function StudentsShow({ student }: Props) {
                         </CardHeader>
                         <CardContent>
                             <dl className="grid gap-4 sm:grid-cols-2">
-                                <Field label="Data iscrizione" value={student.enrolled_at} />
+                                <Field label="Data iscrizione" value={formatDate(student.enrolled_at)} />
                                 <Field label="Stato" value={statusLabel[student.status]} />
                             </dl>
                         </CardContent>
