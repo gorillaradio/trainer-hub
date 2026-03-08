@@ -1,12 +1,24 @@
 # CRUD Allievi (Anagrafica) — Piano di Implementazione
 
-> **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
+> **Stato: COMPLETATO** (2026-03-08)
 
 **Goal:** CRUD completo per la gestione anagrafica allievi all'interno di un tenant, con soft delete, ricerca, filtro per stato e ordinamento.
 
 **Architecture:** Controller RESTful `StudentController` con Form Requests per validazione, Policy per autorizzazione. Frontend con 4 pagine Inertia (index, create, show, edit) e componente form condiviso. Paginazione e filtri server-side. Soft delete con conferma via AlertDialog.
 
 **Tech Stack:** Laravel 12, Inertia.js, React 19, TypeScript, shadcn/ui, Pest (test), stancl/tenancy (BelongsToTenant)
+
+## Bug fixati durante l'implementazione
+
+- FK migrazioni puntavano a `tenants.id` invece di `tenants.slug` — fixato in tutte le migrazioni
+- `authorizeResource()` non funziona in Laravel 12 — sostituito con `$this->authorize()` individuali
+- Base Controller mancava trait `AuthorizesRequests`
+- Form requests usavano `tenant('id')` invece di `tenant()->getTenantKey()`
+- Tipo `PaginatedData` aveva struttura `meta.*` — Laravel `paginate()` restituisce struttura flat
+- Campi data serializzati come ISO timestamp — fixato con cast `date:Y-m-d`
+- Input date nativi sostituiti con DatePicker shadcn (Calendar + Popover)
+- Date nella pagina show formattate in `dd/MM/yyyy` con locale italiano
+- Eccezione `TenantCouldNotBeIdentifiedByPathException` ora rende 404
 
 ---
 
