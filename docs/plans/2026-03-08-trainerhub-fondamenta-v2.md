@@ -71,7 +71,7 @@
 
 ## Task 1: Installare stancl/tenancy
 
-**Stato:** `[ ]`
+**Stato:** `[x]` — Commit: `33b0262`
 
 **Goal:** Installare il pacchetto e configurarlo per single-database + path-based.
 
@@ -129,7 +129,7 @@
 
 ## Task 2: Migrazioni Database (UUID)
 
-**Stato:** `[ ]`
+**Stato:** `[x]` — Commit: `6490803`
 
 **Goal:** Creare tutte le migrazioni con UUID come primary key.
 
@@ -276,7 +276,7 @@
 
 ## Task 3: Enums PHP
 
-**Stato:** `[ ]`
+**Stato:** `[x]` — Commit: `49349a4`
 
 **Goal:** Creare i backed enums per status e tipi. (Identico al Task 5 del piano v1)
 
@@ -351,7 +351,7 @@
 
 ## Task 4: Modello Tenant (stancl/tenancy)
 
-**Stato:** `[ ]`
+**Stato:** `[x]` — Commit: `cc4ab74`
 
 **Goal:** Creare il modello Tenant che estende il modello base di stancl/tenancy.
 
@@ -423,7 +423,7 @@
 
 ## Task 5: Modelli Eloquent
 
-**Stato:** `[ ]`
+**Stato:** `[x]` — Commit: `e0ef319`
 
 **Goal:** Creare/modificare tutti i modelli con relazioni, cast e trait di stancl/tenancy.
 
