@@ -642,7 +642,7 @@
 
 ## Task 6: Adattare Autenticazione (Redirect)
 
-**Stato:** `[ ]`
+**Stato:** `[x]` — Commit: `f660ba1`
 
 **Goal:** Dopo login/registrazione, redirect intelligente tramite route pivot `/dashboard`.
 
@@ -685,7 +685,7 @@
 
 ## Task 7: Onboarding Controller + Pagina
 
-**Stato:** `[ ]`
+**Stato:** `[x]` — Commit: `3813e18`
 
 **Goal:** Il trainer crea il suo primo tenant dopo la registrazione.
 
@@ -780,7 +780,7 @@
 
 ## Task 8: Middleware Tenant + Route
 
-**Stato:** `[ ]`
+**Stato:** `[x]` — Commit: `fa47dd9`
 
 **Goal:** Configurare le route tenant con stancl/tenancy `InitializeTenancyByPath` + middleware accesso.
 
@@ -893,7 +893,7 @@
 
 ## Task 9: Pagina Dashboard Tenant + Layout
 
-**Stato:** `[ ]`
+**Stato:** `[x]` — Commit: `a949d65`
 
 **Goal:** Creare la pagina dashboard e i layout React.
 
