@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import InputError from '@/components/input-error';
-import type { FormEvent } from 'react';
+import CentralLayout from '@/layouts/central-layout';
+import type { FormEvent, ReactNode } from 'react';
 
 function slugify(text: string): string {
     return text
@@ -31,7 +32,7 @@ export default function OnboardingCreate() {
     return (
         <>
             <Head title="Crea la tua organizzazione" />
-            <div className="flex min-h-svh flex-col items-center justify-center bg-background p-6 md:p-10">
+            <div className="flex flex-1 flex-col items-center justify-center p-6 md:p-10">
                 <Card className="w-full max-w-md">
                     <CardHeader className="text-center">
                         <CardTitle className="text-xl">Crea la tua organizzazione</CardTitle>
@@ -72,3 +73,5 @@ export default function OnboardingCreate() {
         </>
     );
 }
+
+OnboardingCreate.layout = (page: ReactNode) => <CentralLayout>{page}</CentralLayout>;
