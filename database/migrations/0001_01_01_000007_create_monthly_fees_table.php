@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('monthly_fees', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('tenant_id');
-            $table->foreign('tenant_id')->references('id')->on('tenants')->cascadeOnDelete();
+            $table->foreign('tenant_id')->references('slug')->on('tenants')->cascadeOnDelete();
             $table->foreignUuid('student_id')->constrained('students')->cascadeOnDelete();
             $table->integer('amount');
             $table->date('due_date');

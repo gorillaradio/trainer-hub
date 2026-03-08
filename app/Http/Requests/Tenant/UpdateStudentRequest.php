@@ -21,7 +21,7 @@ class UpdateStudentRequest extends FormRequest
             'email' => [
                 'nullable', 'email', 'max:255',
                 Rule::unique('students')
-                    ->where('tenant_id', tenant('id'))
+                    ->where('tenant_id', tenant()->getTenantKey())
                     ->ignore($this->route('student')),
             ],
             'phone' => ['nullable', 'string', 'max:50'],

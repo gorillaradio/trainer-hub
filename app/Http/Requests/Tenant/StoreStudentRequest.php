@@ -20,7 +20,7 @@ class StoreStudentRequest extends FormRequest
             'last_name' => ['required', 'string', 'max:255'],
             'email' => [
                 'nullable', 'email', 'max:255',
-                Rule::unique('students')->where('tenant_id', tenant('id')),
+                Rule::unique('students')->where('tenant_id', tenant()->getTenantKey()),
             ],
             'phone' => ['nullable', 'string', 'max:50'],
             'date_of_birth' => ['nullable', 'date', 'before:today'],

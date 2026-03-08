@@ -12,13 +12,10 @@ use Inertia\Inertia;
 
 class StudentController extends Controller
 {
-    public function __construct()
-    {
-        $this->authorizeResource(Student::class, 'student');
-    }
-
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Student::class);
+
         $query = Student::query();
 
         if ($search = $request->input('search')) {
@@ -60,6 +57,8 @@ class StudentController extends Controller
 
     public function create()
     {
+        $this->authorize('create', Student::class);
+
         return Inertia::render('tenant/students/create', [
             'statuses' => array_map(
                 fn (StudentStatus $s) => ['value' => $s->value, 'label' => $s->name],
@@ -70,6 +69,8 @@ class StudentController extends Controller
 
     public function store(StoreStudentRequest $request)
     {
+        $this->authorize('create', Student::class);
+
         Student::create($request->validated());
 
         return redirect()->route('tenant.students.index', tenant('slug'))
@@ -78,6 +79,8 @@ class StudentController extends Controller
 
     public function show(Student $student)
     {
+        $this->authorize('view', $student);
+
         return Inertia::render('tenant/students/show', [
             'student' => $student,
         ]);
@@ -85,6 +88,8 @@ class StudentController extends Controller
 
     public function edit(Student $student)
     {
+        $this->authorize('update', $student);
+
         return Inertia::render('tenant/students/edit', [
             'student' => $student,
             'statuses' => array_map(
@@ -96,6 +101,8 @@ class StudentController extends Controller
 
     public function update(UpdateStudentRequest $request, Student $student)
     {
+        $this->authorize('update', $student);
+
         $student->update($request->validated());
 
         return redirect()->route('tenant.students.show', [tenant('slug'), $student])
@@ -104,6 +111,8 @@ class StudentController extends Controller
 
     public function destroy(Student $student)
     {
+        $this->authorize('delete', $student);
+
         $student->delete(); // soft delete
 
         return redirect()->route('tenant.students.index', tenant('slug'))
