@@ -23,6 +23,11 @@ class Tenant extends BaseTenant
         ];
     }
 
+    public function getTenantKeyName(): string
+    {
+        return 'slug';
+    }
+
     protected $casts = [
         'settings' => 'array',
         'trial_ends_at' => 'datetime',

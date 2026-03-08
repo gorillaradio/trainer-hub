@@ -1,13 +1,12 @@
 <?php
 
-declare(strict_types=1);
+use App\Http\Controllers\Tenant\DashboardController;
+use Illuminate\Support\Facades\Route;
+use Stancl\Tenancy\Middleware\InitializeTenancyByPath;
 
-/*
-|--------------------------------------------------------------------------
-| Tenant Routes
-|--------------------------------------------------------------------------
-|
-| Path-based tenant routes will be configured in Task 8.
-| See: https://tenancyforlaravel.com/docs/v3/routes/
-|
-*/
+Route::middleware(['web', 'auth', InitializeTenancyByPath::class, 'tenant.access'])
+    ->prefix('app/{tenant}')
+    ->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'index'])
+            ->name('tenant.dashboard');
+    });
