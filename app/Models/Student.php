@@ -22,8 +22,8 @@ class Student extends Model
     ];
 
     protected $casts = [
-        'date_of_birth' => 'date',
-        'enrolled_at' => 'date',
+        'date_of_birth' => 'date:Y-m-d',
+        'enrolled_at' => 'date:Y-m-d',
         'status' => StudentStatus::class,
     ];
 
