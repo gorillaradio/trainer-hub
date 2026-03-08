@@ -167,13 +167,13 @@ export default function StudentsIndex({ students, filters, statuses }: Props) {
                     </Table>
                 </div>
 
-                {students.meta.last_page > 1 && (
+                {students.last_page > 1 && (
                     <div className="flex items-center justify-between">
                         <p className="text-sm text-muted-foreground">
-                            {students.meta.from}–{students.meta.to} di {students.meta.total} allievi
+                            {students.from}–{students.to} di {students.total} allievi
                         </p>
                         <div className="flex gap-2">
-                            {students.meta.links.map((link, i) => (
+                            {students.links.map((link, i) => (
                                 <Button
                                     key={i}
                                     variant={link.active ? 'default' : 'outline'}
