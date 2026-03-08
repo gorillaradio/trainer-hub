@@ -12,6 +12,11 @@ use Inertia\Inertia;
 
 class StudentController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Student::class, 'student');
+    }
+
     public function index(Request $request)
     {
         $query = Student::query();
