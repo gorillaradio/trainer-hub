@@ -5,18 +5,18 @@
 - Backend: Laravel 12 con PHP 8.3
 - Frontend: React 19 + Inertia.js 2.x + TypeScript (via Laravel React Starter Kit)
 - UI: shadcn/ui + Tailwind CSS 4
-- Multi-tenancy: single database mode, colonna `tenant_id`, trait BelongsToTenant custom
+- Multi-tenancy: stancl/tenancy v3 in modalità single-database
 - Billing: Laravel Cashier (Stripe) — Sprint 2
 - Database: MySQL 8 (localhost, root, no password, db: trainerhub)
-- IDs: ULID ovunque (trait `HasUlids`)
+- IDs: UUID ovunque (trait `HasUuids`)
 - Importi monetari: integer in centesimi (5000 = €50.00)
 
 ## Architettura Multi-Tenant
 
 - Single database con colonna discriminante `tenant_id`
-- Tutti i modelli tenant-scoped usano il trait `BelongsToTenant` (in `app/Models/Concerns/`)
+- Tutti i modelli tenant-scoped usano il trait `Stancl\Tenancy\Database\Concerns\BelongsToTenant`
 - Il trait applica un global scope automatico e assegna `tenant_id` al creating
-- Il tenant corrente è risolto via middleware e bindato come `app('current_tenant')`
+- Il tenant corrente è risolto via `InitializeTenancyByPath` di stancl/tenancy
 - Le route tenant sono path-based: `/app/{tenant:slug}/...`
 - MAI accedere a dati tenant senza passare dal global scope
 

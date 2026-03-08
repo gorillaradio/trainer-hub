@@ -84,7 +84,7 @@ Queste tabelle vivono nel database principale e NON hanno `tenant_id`.
 
 ```
 tenants
-├── id (ULID)
+├── id (string)             -- stancl/tenancy usa string ID (UUID generato)
 ├── name                    -- "Palestra Rossi ASD"
 ├── slug                    -- "palestra-rossi" (per URL path-based)
 ├── domain                  -- null (futuro: custom domain)
@@ -96,7 +96,7 @@ tenants
 ├── timestamps
 
 users
-├── id (ULID)
+├── id (UUID)
 ├── name
 ├── email (unique)
 ├── password
@@ -127,7 +127,7 @@ Tutte queste tabelle hanno `tenant_id` e sono automaticamente filtrate da stancl
 
 ```
 students
-├── id (ULID)
+├── id (UUID)
 ├── tenant_id (FK → tenants)
 ├── first_name
 ├── last_name
@@ -147,7 +147,7 @@ students
 ├── INDEX(tenant_id, last_name, first_name)
 
 enrollment_fees
-├── id (ULID)
+├── id (UUID)
 ├── tenant_id
 ├── student_id (FK → students)
 ├── amount (integer, centesimi)    -- 5000 = €50.00
@@ -159,7 +159,7 @@ enrollment_fees
 ├── UNIQUE(tenant_id, student_id, academic_year)
 
 monthly_fees
-├── id (ULID)
+├── id (UUID)
 ├── tenant_id
 ├── student_id (FK → students)
 ├── amount (integer, centesimi)
@@ -173,7 +173,7 @@ monthly_fees
 ├── INDEX(tenant_id, due_date, paid_at)
 
 documents
-├── id (ULID)
+├── id (UUID)
 ├── tenant_id
 ├── student_id (FK → students)
 ├── type                         -- medical_certificate, identity_doc, privacy_consent, other
@@ -324,7 +324,7 @@ trait BelongsToTenant
 // app/Models/Student.php
 class Student extends Model
 {
-    use BelongsToTenant, HasUlids;
+    use BelongsToTenant, HasUuids;
 
     protected $fillable = [
         'first_name', 'last_name', 'email', 'phone',
@@ -613,9 +613,9 @@ class FeatureGateService
 ```
 s3-bucket/
 ├── tenants/
-│   ├── {tenant_ulid}/
+│   ├── {tenant_uuid}/
 │   │   ├── documents/
-│   │   │   ├── {student_ulid}/
+│   │   │   ├── {student_uuid}/
 │   │   │   │   ├── medical_cert_2025.pdf
 │   │   │   │   └── privacy_consent.pdf
 │   │   │   └── ...
