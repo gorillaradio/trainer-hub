@@ -4,13 +4,15 @@ namespace App\Models;
 
 use App\Enums\StudentStatus;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 class Student extends Model
 {
-    use HasUuids, BelongsToTenant;
+    use HasFactory, HasUuids, BelongsToTenant, SoftDeletes;
 
     protected $fillable = [
         'first_name', 'last_name', 'email', 'phone',
