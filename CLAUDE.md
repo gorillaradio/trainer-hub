@@ -77,6 +77,7 @@
 ## Skills Claude Code
 
 - Usa la skill `shadcn` per aggiungere, cercare e gestire componenti shadcn/ui
+- **Prima di creare qualsiasi componente UI**, cerca SEMPRE sulla documentazione ufficiale di shadcn/ui (https://ui.shadcn.com/docs/components) se esiste già un componente equivalente. Non creare componenti custom quando shadcn ne ha uno ufficiale.
 
 ## Lingua
 

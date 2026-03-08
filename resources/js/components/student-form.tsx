@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -106,11 +107,11 @@ export function StudentForm({ student, statuses, submitLabel }: Props) {
 
                     <div className="space-y-2">
                         <Label htmlFor="date_of_birth">Data di nascita</Label>
-                        <Input
+                        <DatePicker
                             id="date_of_birth"
-                            type="date"
                             value={data.date_of_birth}
-                            onChange={(e) => setData('date_of_birth', e.target.value)}
+                            onChange={(value) => setData('date_of_birth', value)}
+                            placeholder="Seleziona data di nascita"
                         />
                         {errors.date_of_birth && <p className="text-sm text-destructive">{errors.date_of_birth}</p>}
                     </div>
@@ -196,11 +197,11 @@ export function StudentForm({ student, statuses, submitLabel }: Props) {
 
                     <div className="space-y-2">
                         <Label htmlFor="enrolled_at">Data iscrizione</Label>
-                        <Input
+                        <DatePicker
                             id="enrolled_at"
-                            type="date"
                             value={data.enrolled_at}
-                            onChange={(e) => setData('enrolled_at', e.target.value)}
+                            onChange={(value) => setData('enrolled_at', value)}
+                            placeholder="Seleziona data iscrizione"
                         />
                         {errors.enrolled_at && <p className="text-sm text-destructive">{errors.enrolled_at}</p>}
                     </div>
