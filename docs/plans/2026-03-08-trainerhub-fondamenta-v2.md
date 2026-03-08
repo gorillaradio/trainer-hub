@@ -940,7 +940,7 @@
 
 ## Task 10: Verifica End-to-End
 
-**Stato:** `[ ]`
+**Stato:** `[x]` — Commit: `84e1825`
 
 **Goal:** Testare il flusso completo.
 
