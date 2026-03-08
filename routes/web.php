@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Central\OnboardingController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
@@ -17,6 +18,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         return redirect()->route('onboarding.create');
     })->name('dashboard');
+
+    Route::get('/onboarding', [OnboardingController::class, 'create'])->name('onboarding.create');
+    Route::post('/onboarding', [OnboardingController::class, 'store'])->name('onboarding.store');
 });
 
 require __DIR__.'/settings.php';
