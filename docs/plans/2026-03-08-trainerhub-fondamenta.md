@@ -78,7 +78,7 @@
 - `database/migrations/0001_01_01_000008_create_documents_table.php`
 
 - [x] **4.1–4.7** Tutte le migrazioni create e verificate
-- [ ] **4.8** Commit (da fare insieme agli altri task del checkpoint)
+- [x] **4.8** Commit: `9577212`
 
 ---
 
@@ -97,7 +97,7 @@
 - `app/Enums/DocumentStatus.php` — pending, delivered, expired, expiring_soon
 
 - [x] **5.1** Tutti i 4 enum creati come string backed enums
-- [ ] **5.2** Commit (da fare insieme agli altri task del checkpoint)
+- [x] **5.2** Commit: `54f2362`
 
 ---
 
@@ -114,7 +114,7 @@
 **File creato:** `app/Models/Concerns/BelongsToTenant.php`
 
 - [x] **6.1** Trait creato con bootBelongsToTenant() e tenant() relation
-- [ ] **6.2** Commit (da fare insieme agli altri task del checkpoint)
+- [x] **6.2** Commit: `6494fc7`
 
 ---
 
@@ -137,7 +137,7 @@
 - Creato: `app/Models/Document.php` — HasUlids, BelongsToTenant, cast
 
 - [x] **7.1–7.7** Tutti i modelli creati e verificati con tinker
-- [ ] **7.8** Commit (da fare ora)
+- [x] **7.8** Commit: `dbdadb9`
 
 ---
 
