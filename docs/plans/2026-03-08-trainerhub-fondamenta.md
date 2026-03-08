@@ -26,121 +26,35 @@
 
 ## Task 1: Scaffolding Laravel
 
-**Stato:** `[~]` IN CORSO
+**Stato:** `[x]` COMPLETATO
 
 **Goal:** Creare il progetto Laravel con lo starter kit React e inizializzare git.
 
-**Steps:**
+**Note:** Usato `laravel new trainer-hub --react` (il flag `--react` seleziona lo starter kit direttamente). Lo starter kit include già shadcn/ui inizializzato con tutti i componenti necessari.
 
-- [ ] **1.1** Crea il progetto Laravel nella directory corrente:
-  ```bash
-  cd /Users/seb/Desktop/lavoro/devolab/lara_apps/gorillaradio/
-  # Rimuovi la directory trainer-hub esistente (contiene solo docs e CLAUDE.md)
-  # Prima salva docs/ e CLAUDE.md, poi ricrea
-  mv trainer-hub/docs /tmp/trainerhub-docs
-  mv trainer-hub/CLAUDE.md /tmp/trainerhub-claude
-  rm -rf trainer-hub
-  composer create-project laravel/laravel trainer-hub
-  mv /tmp/trainerhub-docs trainer-hub/docs
-  mv /tmp/trainerhub-claude trainer-hub/CLAUDE.md
-  cd trainer-hub
-  ```
-
-- [ ] **1.2** Installa lo starter kit React:
-  ```bash
-  cd /Users/seb/Desktop/lavoro/devolab/lara_apps/gorillaradio/trainer-hub
-  php artisan install:starter-kit react
-  # Scegli le opzioni: TypeScript, Inertia SSR no (per ora)
-  ```
-
-- [ ] **1.3** Verifica che funzioni:
-  ```bash
-  npm install
-  npm run build
-  php artisan serve &
-  # Visita http://127.0.0.1:8000 → deve mostrare la welcome page
-  ```
-
-- [ ] **1.4** Commit:
-  ```bash
-  git add -A
-  git commit -m "chore: scaffold Laravel 12 with React starter kit"
-  ```
+**Commit:** `3db3ebb` — chore: scaffold Laravel 12 with React starter kit
 
 ---
 
 ## Task 2: shadcn/ui Setup
 
-**Stato:** `[ ]`
+**Stato:** `[x]` COMPLETATO (incluso nello starter kit)
 
 **Goal:** Inizializzare shadcn/ui e aggiungere tutti i componenti necessari.
 
-**Dipende da:** Task 1
-
-**Steps:**
-
-- [ ] **2.1** Inizializza shadcn/ui:
-  ```bash
-  npx shadcn@latest init -d
-  ```
-
-- [ ] **2.2** Aggiungi i componenti richiesti:
-  ```bash
-  npx shadcn@latest add button input label card separator avatar dropdown-menu sheet navigation-menu badge
-  ```
-
-- [ ] **2.3** Verifica che il build funzioni:
-  ```bash
-  npm run build
-  ```
-
-- [ ] **2.4** Commit:
-  ```bash
-  git add -A
-  git commit -m "chore: add shadcn/ui with required components"
-  ```
+**Note:** Lo starter kit React di Laravel 12 include già shadcn/ui inizializzato con tutti i componenti richiesti: button, input, label, card, separator, avatar, dropdown-menu, sheet, navigation-menu, badge + molti altri (dialog, sidebar, tooltip, skeleton, etc.). Nessuna azione necessaria.
 
 ---
 
 ## Task 3: Database MySQL + Configurazione .env
 
-**Stato:** `[ ]`
+**Stato:** `[x]` COMPLETATO
 
 **Goal:** Creare il database MySQL e configurare la connessione.
 
-**Dipende da:** Task 1
+**Note:** Database `trainerhub` creato su MySQL 8 (root, no password). `.env` e `.env.example` aggiornati. Migrazioni di base (users, cache, jobs, two_factor) eseguite su MySQL.
 
-**Files:**
-- Modify: `.env`
-
-**Steps:**
-
-- [ ] **3.1** Crea il database MySQL:
-  ```bash
-  mysql -u root -e "CREATE DATABASE IF NOT EXISTS trainerhub CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-  ```
-
-- [ ] **3.2** Configura `.env`:
-  ```env
-  DB_CONNECTION=mysql
-  DB_HOST=127.0.0.1
-  DB_PORT=3306
-  DB_DATABASE=trainerhub
-  DB_USERNAME=root
-  DB_PASSWORD=
-  ```
-
-- [ ] **3.3** Verifica la connessione:
-  ```bash
-  php artisan db:show
-  ```
-
-- [ ] **3.4** Commit:
-  ```bash
-  git add .env.example
-  git commit -m "chore: configure MySQL database connection"
-  ```
-  Nota: `.env` è in `.gitignore`, committa solo `.env.example` aggiornato.
+**Commit:** `40551ef` — chore: configure MySQL database connection
 
 ---
 
