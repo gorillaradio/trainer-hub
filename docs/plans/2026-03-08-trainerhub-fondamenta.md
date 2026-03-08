@@ -60,203 +60,84 @@
 
 ## Task 4: Migrazioni Database
 
-**Stato:** `[ ]`
+**Stato:** `[x]` COMPLETATO
 
 **Goal:** Creare tutte le migrazioni per le 6 tabelle con ULID come primary key.
 
 **Dipende da:** Task 3
 
-**Files da creare:**
-- `database/migrations/xxxx_modify_users_table.php` — modifica tabella users (aggiungi `current_tenant_id`, cambia id in ULID)
-- `database/migrations/xxxx_create_tenants_table.php`
-- `database/migrations/xxxx_create_students_table.php`
-- `database/migrations/xxxx_create_enrollment_fees_table.php`
-- `database/migrations/xxxx_create_monthly_fees_table.php`
-- `database/migrations/xxxx_create_documents_table.php`
+**Note:** Modificata direttamente la migrazione users originale (`id()` → `ulid('id')->primary()`, sessions FK → `foreignUlid`). Creata migrazione separata `000004` per `current_tenant_id` (necessaria per ordine FK: users → tenants → users.current_tenant_id). Tutte le tabelle tenant-scoped con `foreignUlid('tenant_id')->constrained()->cascadeOnDelete()`. Verificato con `migrate:fresh` — 10 migrazioni, 0 errori.
 
-**Riferimento schema:** `docs/architecture.md` sezione 4
+**Files creati/modificati:**
+- `database/migrations/0001_01_01_000000_create_users_table.php` — modificata (ULID + foreignUlid sessions)
+- `database/migrations/0001_01_01_000003_create_tenants_table.php`
+- `database/migrations/0001_01_01_000004_add_current_tenant_id_to_users_table.php`
+- `database/migrations/0001_01_01_000005_create_students_table.php`
+- `database/migrations/0001_01_01_000006_create_enrollment_fees_table.php`
+- `database/migrations/0001_01_01_000007_create_monthly_fees_table.php`
+- `database/migrations/0001_01_01_000008_create_documents_table.php`
 
-**Steps:**
-
-- [ ] **4.1** Crea migrazione `tenants`:
-  ```php
-  // Colonne: id (ULID), name, slug (unique), domain (nullable),
-  // owner_id (FK users), settings (JSON nullable),
-  // stripe_account_id (nullable), status (default 'active'),
-  // trial_ends_at (nullable), timestamps
-  ```
-
-- [ ] **4.2** Modifica migrazione `users` esistente:
-  ```php
-  // Cambia $table->id() in $table->ulid('id')->primary()
-  // Aggiungi: current_tenant_id (FK tenants, nullable)
-  // Le altre colonne restano come da starter kit
-  ```
-  Nota: lo starter kit crea la migrazione users. Valuta se modificarla direttamente o creare una migrazione di modifica.
-
-- [ ] **4.3** Crea migrazione `students`:
-  ```php
-  // Colonne da architecture.md sezione 4.2
-  // Indici: (tenant_id, status), (tenant_id, last_name, first_name)
-  ```
-
-- [ ] **4.4** Crea migrazione `enrollment_fees`:
-  ```php
-  // Colonne da architecture.md sezione 4.2
-  // UNIQUE: (tenant_id, student_id, academic_year)
-  ```
-
-- [ ] **4.5** Crea migrazione `monthly_fees`:
-  ```php
-  // Colonne da architecture.md sezione 4.2
-  // UNIQUE: (tenant_id, student_id, period)
-  // INDEX: (tenant_id, due_date, paid_at)
-  ```
-
-- [ ] **4.6** Crea migrazione `documents`:
-  ```php
-  // Colonne da architecture.md sezione 4.2
-  // INDEX: (tenant_id, student_id, type), (tenant_id, expires_at)
-  ```
-
-- [ ] **4.7** Esegui le migrazioni:
-  ```bash
-  php artisan migrate
-  ```
-  Expected: tutte le tabelle create senza errori.
-
-- [ ] **4.8** Commit:
-  ```bash
-  git add database/migrations/
-  git commit -m "feat: add database migrations for all tables (ULID, multi-tenant)"
-  ```
+- [x] **4.1–4.7** Tutte le migrazioni create e verificate
+- [ ] **4.8** Commit (da fare insieme agli altri task del checkpoint)
 
 ---
 
 ## Task 5: Enums PHP
 
-**Stato:** `[ ]`
+**Stato:** `[x]` COMPLETATO
 
 **Goal:** Creare i backed enums per status e tipi.
 
 **Dipende da:** Task 4
 
-**Files da creare:**
-- `app/Enums/StudentStatus.php` — valori: `active`, `inactive`, `suspended`
-- `app/Enums/PaymentMethod.php` — valori: `cash`, `transfer`, `card`, `online`
-- `app/Enums/DocumentType.php` — valori: `medical_certificate`, `identity_doc`, `privacy_consent`, `other`
-- `app/Enums/DocumentStatus.php` — valori: `pending`, `delivered`, `expired`, `expiring_soon`
+**Files creati:**
+- `app/Enums/StudentStatus.php` — active, inactive, suspended
+- `app/Enums/PaymentMethod.php` — cash, transfer, card, online
+- `app/Enums/DocumentType.php` — medical_certificate, identity_doc, privacy_consent, other
+- `app/Enums/DocumentStatus.php` — pending, delivered, expired, expiring_soon
 
-**Steps:**
-
-- [ ] **5.1** Crea directory e i 4 enum come `string` backed enums:
-  ```php
-  // Esempio:
-  enum StudentStatus: string
-  {
-      case Active = 'active';
-      case Inactive = 'inactive';
-      case Suspended = 'suspended';
-  }
-  ```
-
-- [ ] **5.2** Commit:
-  ```bash
-  git add app/Enums/
-  git commit -m "feat: add PHP enums for student status, payment method, document type/status"
-  ```
+- [x] **5.1** Tutti i 4 enum creati come string backed enums
+- [ ] **5.2** Commit (da fare insieme agli altri task del checkpoint)
 
 ---
 
 ## Task 6: Trait BelongsToTenant
 
-**Stato:** `[ ]`
+**Stato:** `[x]` COMPLETATO
 
 **Goal:** Creare il trait custom per il tenant scoping automatico.
 
 **Dipende da:** Task 4
 
-**Files da creare:**
-- `app/Models/Concerns/BelongsToTenant.php`
+**Note:** Trait implementato come da architecture.md sezione 5.3. Verificato: `tenant_id` auto-assegnato al creating, global scope filtra correttamente.
 
-**Riferimento:** `docs/architecture.md` sezione 5.3
+**File creato:** `app/Models/Concerns/BelongsToTenant.php`
 
-**Steps:**
-
-- [ ] **6.1** Crea il trait con:
-  - `bootBelongsToTenant()`: assegna `tenant_id` al creating, global scope per filtrare
-  - `tenant(): BelongsTo` relazione
-  ```php
-  // Codice esatto in architecture.md sezione 5.3
-  ```
-
-- [ ] **6.2** Commit:
-  ```bash
-  git add app/Models/Concerns/
-  git commit -m "feat: add BelongsToTenant trait with auto-scoping"
-  ```
+- [x] **6.1** Trait creato con bootBelongsToTenant() e tenant() relation
+- [ ] **6.2** Commit (da fare insieme agli altri task del checkpoint)
 
 ---
 
 ## Task 7: Modelli Eloquent
 
-**Stato:** `[ ]`
+**Stato:** `[x]` COMPLETATO
 
 **Goal:** Creare/modificare tutti i modelli con relazioni, cast e trait.
 
 **Dipende da:** Task 5, Task 6
 
+**Note:** Tutti i modelli creati/modificati. Verificato con tinker: creazione completa di User → Tenant → Student → EnrollmentFee/MonthlyFee/Document. ULID IDs funzionano, BelongsToTenant auto-assegna tenant_id, tutti i cast enum funzionano, tutte le relazioni verificate. Omesso `currentEnrollmentFee()` da Student (richiede `AcademicYear::current()` non ancora implementato).
+
 **Files:**
-- Modify: `app/Models/User.php` — aggiungi `HasUlids`, `MustVerifyEmail`, relazione `tenants()`, `currentTenant()`
-- Create: `app/Models/Tenant.php` — `HasUlids`, relazioni `owner()`, `students()`
-- Create: `app/Models/Student.php` — `HasUlids`, `BelongsToTenant`, relazioni, cast
-- Create: `app/Models/EnrollmentFee.php` — `HasUlids`, `BelongsToTenant`, cast amount in centesimi
-- Create: `app/Models/MonthlyFee.php` — `HasUlids`, `BelongsToTenant`, cast
-- Create: `app/Models/Document.php` — `HasUlids`, `BelongsToTenant`, cast
+- Modificato: `app/Models/User.php` — HasUlids, MustVerifyEmail, tenants(), currentTenant()
+- Creato: `app/Models/Tenant.php` — HasUlids, owner(), students()
+- Creato: `app/Models/Student.php` — HasUlids, BelongsToTenant, tutte le relazioni
+- Creato: `app/Models/EnrollmentFee.php` — HasUlids, BelongsToTenant, cast centesimi
+- Creato: `app/Models/MonthlyFee.php` — HasUlids, BelongsToTenant, cast
+- Creato: `app/Models/Document.php` — HasUlids, BelongsToTenant, cast
 
-**Riferimento:** `docs/architecture.md` sezione 5.3 per Student come esempio
-
-**Steps:**
-
-- [ ] **7.1** Modifica `User.php`:
-  - Aggiungi `use HasUlids;`
-  - Implementa `MustVerifyEmail`
-  - Aggiungi relazione `tenants(): HasMany` e `currentTenant(): BelongsTo`
-  - Aggiungi `current_tenant_id` a `$fillable`
-
-- [ ] **7.2** Crea `Tenant.php`:
-  - `HasUlids`
-  - `$fillable`: name, slug, domain, owner_id, settings, status, trial_ends_at
-  - `$casts`: settings → array, trial_ends_at → datetime
-  - Relazioni: `owner(): BelongsTo(User)`, `students(): HasMany`
-
-- [ ] **7.3** Crea `Student.php`:
-  - Copia struttura da `docs/architecture.md` sezione 5.3
-  - `HasUlids`, `BelongsToTenant`
-  - Tutte le relazioni: enrollmentFees, monthlyFees, documents
-
-- [ ] **7.4** Crea `EnrollmentFee.php`:
-  - `HasUlids`, `BelongsToTenant`
-  - Cast: `paid_at` → datetime, `payment_method` → PaymentMethod enum, `amount` → integer
-
-- [ ] **7.5** Crea `MonthlyFee.php`:
-  - `HasUlids`, `BelongsToTenant`
-  - Cast: `due_date` → date, `paid_at` → datetime, `payment_method` → PaymentMethod enum
-
-- [ ] **7.6** Crea `Document.php`:
-  - `HasUlids`, `BelongsToTenant`
-  - Cast: `type` → DocumentType, `status` → DocumentStatus, `delivered_at`/`expires_at` → date
-
-- [ ] **7.7** Verifica che non ci siano errori:
-  ```bash
-  php artisan tinker --execute="new App\Models\Student;"
-  ```
-
-- [ ] **7.8** Commit:
-  ```bash
-  git add app/Models/ app/Enums/
-  git commit -m "feat: add all Eloquent models with traits, relations, and casts"
-  ```
+- [x] **7.1–7.7** Tutti i modelli creati e verificati con tinker
+- [ ] **7.8** Commit (da fare ora)
 
 ---
 
