@@ -1,3 +1,7 @@
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { ArrowUpDown, Plus } from 'lucide-react';
+import type { ReactNode } from 'react';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,9 +23,20 @@ import {
 import TenantLayout from '@/layouts/tenant-layout';
 import { statusLabel, statusVariant } from '@/lib/student-status';
 import type { PaginatedData, Student, StudentFilters, StudentStatus } from '@/types';
-import { Head, Link, router, usePage } from '@inertiajs/react';
-import { ArrowUpDown, Plus } from 'lucide-react';
-import type { ReactNode } from 'react';
+
+function SortableHeader({ field, children, onSort }: { field: string; children: React.ReactNode; onSort: (field: string) => void }) {
+    return (
+        <TableHead>
+            <button
+                className="flex items-center gap-1 hover:text-foreground"
+                onClick={() => onSort(field)}
+            >
+                {children}
+                <ArrowUpDown className="size-4" />
+            </button>
+        </TableHead>
+    );
+}
 
 type Props = {
     students: PaginatedData<Student>;
@@ -53,20 +68,6 @@ export default function StudentsIndex({ students, filters, statuses }: Props) {
             preserveState: true,
             replace: true,
         });
-    }
-
-    function SortableHeader({ field, children }: { field: string; children: React.ReactNode }) {
-        return (
-            <TableHead>
-                <button
-                    className="flex items-center gap-1 hover:text-foreground"
-                    onClick={() => handleSort(field)}
-                >
-                    {children}
-                    <ArrowUpDown className="size-4" />
-                </button>
-            </TableHead>
-        );
     }
 
     return (
@@ -112,11 +113,11 @@ export default function StudentsIndex({ students, filters, statuses }: Props) {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <SortableHeader field="last_name">Cognome</SortableHeader>
-                                <SortableHeader field="first_name">Nome</SortableHeader>
+                                <SortableHeader field="last_name" onSort={handleSort}>Cognome</SortableHeader>
+                                <SortableHeader field="first_name" onSort={handleSort}>Nome</SortableHeader>
                                 <TableHead className="hidden md:table-cell">Email</TableHead>
                                 <TableHead className="hidden sm:table-cell">Telefono</TableHead>
-                                <SortableHeader field="status">Stato</SortableHeader>
+                                <SortableHeader field="status" onSort={handleSort}>Stato</SortableHeader>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
