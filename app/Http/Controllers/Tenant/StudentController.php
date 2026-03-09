@@ -12,6 +12,14 @@ use Inertia\Inertia;
 
 class StudentController extends Controller
 {
+    private function statusOptions(): array
+    {
+        return array_map(
+            fn (StudentStatus $s) => ['value' => $s->value, 'label' => $s->name],
+            StudentStatus::cases()
+        );
+    }
+
     public function index(Request $request)
     {
         $this->authorize('viewAny', Student::class);
@@ -48,10 +56,7 @@ class StudentController extends Controller
                 'sort' => $sortField,
                 'direction' => $sortDirection,
             ],
-            'statuses' => array_map(
-                fn (StudentStatus $s) => ['value' => $s->value, 'label' => $s->name],
-                StudentStatus::cases()
-            ),
+            'statuses' => $this->statusOptions(),
         ]);
     }
 
@@ -60,10 +65,7 @@ class StudentController extends Controller
         $this->authorize('create', Student::class);
 
         return Inertia::render('tenant/students/create', [
-            'statuses' => array_map(
-                fn (StudentStatus $s) => ['value' => $s->value, 'label' => $s->name],
-                StudentStatus::cases()
-            ),
+            'statuses' => $this->statusOptions(),
         ]);
     }
 
@@ -92,10 +94,7 @@ class StudentController extends Controller
 
         return Inertia::render('tenant/students/edit', [
             'student' => $student,
-            'statuses' => array_map(
-                fn (StudentStatus $s) => ['value' => $s->value, 'label' => $s->name],
-                StudentStatus::cases()
-            ),
+            'statuses' => $this->statusOptions(),
         ]);
     }
 
@@ -113,7 +112,7 @@ class StudentController extends Controller
     {
         $this->authorize('delete', $student);
 
-        $student->delete(); // soft delete
+        $student->delete();
 
         return redirect()->route('tenant.students.index', tenant('slug'))
             ->with('success', 'Allievo archiviato con successo.');

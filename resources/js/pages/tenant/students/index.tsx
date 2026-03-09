@@ -17,6 +17,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import TenantLayout from '@/layouts/tenant-layout';
+import { statusLabel, statusVariant } from '@/lib/student-status';
 import type { PaginatedData, Student, StudentFilters, StudentStatus } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { ArrowUpDown, Plus } from 'lucide-react';
@@ -26,18 +27,6 @@ type Props = {
     students: PaginatedData<Student>;
     filters: StudentFilters;
     statuses: StudentStatus[];
-};
-
-const statusVariant: Record<string, 'default' | 'secondary' | 'destructive'> = {
-    active: 'default',
-    inactive: 'secondary',
-    suspended: 'destructive',
-};
-
-const statusLabel: Record<string, string> = {
-    active: 'Attivo',
-    inactive: 'Inattivo',
-    suspended: 'Sospeso',
 };
 
 export default function StudentsIndex({ students, filters, statuses }: Props) {

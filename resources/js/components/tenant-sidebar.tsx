@@ -1,5 +1,4 @@
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutGrid, Users, CreditCard, FileText } from 'lucide-react';
 import AppLogoIcon from '@/components/app-logo-icon';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -12,34 +11,12 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import type { NavItem } from '@/types';
+import { getTenantNavItems } from '@/lib/tenant-nav';
 
 export function TenantSidebar() {
     const { tenant } = usePage().props as { tenant: { id: string; name: string; slug: string } };
     const prefix = `/app/${tenant.slug}`;
-
-    const mainNavItems: NavItem[] = [
-        {
-            title: 'Dashboard',
-            href: `${prefix}/dashboard`,
-            icon: LayoutGrid,
-        },
-        {
-            title: 'Allievi',
-            href: `${prefix}/students`,
-            icon: Users,
-        },
-        {
-            title: 'Pagamenti',
-            href: `${prefix}/payments`,
-            icon: CreditCard,
-        },
-        {
-            title: 'Documenti',
-            href: `${prefix}/documents`,
-            icon: FileText,
-        },
-    ];
+    const mainNavItems = getTenantNavItems(tenant.slug);
 
     return (
         <Sidebar collapsible="icon" variant="inset">

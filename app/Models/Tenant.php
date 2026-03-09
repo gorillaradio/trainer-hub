@@ -10,6 +10,7 @@ use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 class Tenant extends BaseTenant
 {
     use HasFactory;
+
     public static function getCustomColumns(): array
     {
         return [

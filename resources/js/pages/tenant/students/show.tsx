@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import TenantLayout from '@/layouts/tenant-layout';
+import { statusLabel, statusVariant } from '@/lib/student-status';
 import type { Student } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { format, parse } from 'date-fns';
@@ -27,18 +28,6 @@ function formatDate(value: string | null): string | null {
 
 type Props = {
     student: Student;
-};
-
-const statusVariant: Record<string, 'default' | 'secondary' | 'destructive'> = {
-    active: 'default',
-    inactive: 'secondary',
-    suspended: 'destructive',
-};
-
-const statusLabel: Record<string, string> = {
-    active: 'Attivo',
-    inactive: 'Inattivo',
-    suspended: 'Sospeso',
 };
 
 function Field({ label, value }: { label: string; value: string | null }) {

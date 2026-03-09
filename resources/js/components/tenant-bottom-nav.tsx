@@ -1,26 +1,12 @@
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutGrid, Users, CreditCard, FileText } from 'lucide-react';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { cn } from '@/lib/utils';
-import type { LucideIcon } from 'lucide-react';
-
-type NavItem = {
-    title: string;
-    href: string;
-    icon: LucideIcon;
-};
+import { getTenantNavItems } from '@/lib/tenant-nav';
 
 export function TenantBottomNav() {
     const { tenant } = usePage().props as { tenant: { id: string; name: string; slug: string } };
     const { isCurrentOrParentUrl } = useCurrentUrl();
-    const prefix = `/app/${tenant.slug}`;
-
-    const items: NavItem[] = [
-        { title: 'Dashboard', href: `${prefix}/dashboard`, icon: LayoutGrid },
-        { title: 'Allievi', href: `${prefix}/students`, icon: Users },
-        { title: 'Pagamenti', href: `${prefix}/payments`, icon: CreditCard },
-        { title: 'Documenti', href: `${prefix}/documents`, icon: FileText },
-    ];
+    const items = getTenantNavItems(tenant.slug);
 
     return (
         <nav className="fixed inset-x-0 bottom-0 z-50 border-t bg-background pb-[env(safe-area-inset-bottom)]">
@@ -38,7 +24,7 @@ export function TenantBottomNav() {
                                     : 'text-muted-foreground',
                             )}
                         >
-                            <item.icon className="size-5" />
+                            {item.icon && <item.icon className="size-5" />}
                             <span>{item.title}</span>
                         </Link>
                     );
