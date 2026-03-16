@@ -53,6 +53,11 @@
 - Layout assegnato con persistent layout pattern di Inertia
 - Mobile-first: il trainer usa spesso il telefono
 
+## Review Frontend
+
+- **Dopo ogni blocco di lavoro UI**, lancia il code-reviewer agent (`superpowers:code-reviewer`) usando la checklist nella skill `frontend-review`.
+- Invoca la skill `frontend-review` PRIMA di scrivere codice UI per avere le regole fresche in contesto.
+
 ## Convenzioni Naming
 
 - Tabelle: snake_case plurale (students, monthly_fees)
