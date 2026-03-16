@@ -33,8 +33,8 @@ type Props = {
 function Field({ label, value }: { label: string; value: string | null }) {
     return (
         <div>
-            <dt className="text-sm text-muted-foreground">{label}</dt>
-            <dd className="mt-1">{value || '—'}</dd>
+            <p className="text-sm text-muted-foreground">{label}</p>
+            <p className="mt-1">{value || '—'}</p>
         </div>
     );
 }
@@ -99,14 +99,23 @@ export default function StudentsShow({ student }: Props) {
                             <CardTitle>Dati personali</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <dl className="grid gap-4 sm:grid-cols-2">
+                            <div className="grid gap-4 sm:grid-cols-2">
                                 <Field label="Nome" value={student.first_name} />
                                 <Field label="Cognome" value={student.last_name} />
                                 <Field label="Email" value={student.email} />
-                                <Field label="Telefono" value={student.phone} />
+                                <Field
+                                    label="Telefono"
+                                    value={
+                                        student.effective_phone
+                                            ? student.phone_contact_id
+                                                ? `${student.effective_phone} (da contatto: ${student.emergency_contacts?.find(c => c.id === student.phone_contact_id)?.name ?? '—'})`
+                                                : student.effective_phone
+                                            : null
+                                    }
+                                />
                                 <Field label="Data di nascita" value={formatDate(student.date_of_birth)} />
                                 <Field label="Codice fiscale" value={student.fiscal_code} />
-                            </dl>
+                            </div>
                         </CardContent>
                     </Card>
 
@@ -121,13 +130,21 @@ export default function StudentsShow({ student }: Props) {
 
                     <Card>
                         <CardHeader>
-                            <CardTitle>Contatto di emergenza</CardTitle>
+                            <CardTitle>Contatti di emergenza</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <dl className="grid gap-4 sm:grid-cols-2">
-                                <Field label="Nome contatto" value={student.emergency_contact_name} />
-                                <Field label="Telefono contatto" value={student.emergency_contact_phone} />
-                            </dl>
+                            {student.emergency_contacts?.length > 0 ? (
+                                <div className="space-y-4">
+                                    {student.emergency_contacts.map((contact) => (
+                                        <div key={contact.id} className="grid gap-4 sm:grid-cols-2">
+                                            <Field label="Nome contatto" value={contact.name} />
+                                            <Field label="Telefono contatto" value={contact.phone} />
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-sm text-muted-foreground">Nessun contatto di emergenza</p>
+                            )}
                         </CardContent>
                     </Card>
 
@@ -136,10 +153,10 @@ export default function StudentsShow({ student }: Props) {
                             <CardTitle>Iscrizione</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <dl className="grid gap-4 sm:grid-cols-2">
+                            <div className="grid gap-4 sm:grid-cols-2">
                                 <Field label="Data iscrizione" value={formatDate(student.enrolled_at)} />
                                 <Field label="Stato" value={statusLabel[student.status]} />
-                            </dl>
+                            </div>
                         </CardContent>
                     </Card>
 

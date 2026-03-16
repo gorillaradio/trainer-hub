@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\StudentStatus;
+use App\Models\EmergencyContact;
 use App\Models\Student;
 use App\Models\Tenant;
 use App\Models\User;
@@ -80,6 +81,54 @@ test('store crea un allievo', function () {
     ]);
 });
 
+test('store crea un allievo con contatti di emergenza', function () {
+    $response = $this->post("/app/{$this->tenant->slug}/students", [
+        'first_name' => 'Marco',
+        'last_name' => 'Rossi',
+        'status' => 'active',
+        'emergency_contacts' => [
+            ['name' => 'Padre Marco', 'phone' => '333-1234567'],
+            ['name' => 'Madre Anna', 'phone' => '333-7654321'],
+        ],
+    ]);
+
+    $response->assertRedirect("/app/{$this->tenant->slug}/students");
+    $student = Student::where('first_name', 'Marco')->first();
+    expect($student->emergencyContacts)->toHaveCount(2);
+    $this->assertDatabaseHas('emergency_contacts', [
+        'student_id' => $student->id,
+        'name' => 'Padre Marco',
+        'phone' => '333-1234567',
+    ]);
+    $this->assertDatabaseHas('emergency_contacts', [
+        'student_id' => $student->id,
+        'name' => 'Madre Anna',
+        'phone' => '333-7654321',
+    ]);
+});
+
+test('store con phone_contact_index linka il telefono al contatto', function () {
+    $response = $this->post("/app/{$this->tenant->slug}/students", [
+        'first_name' => 'Luca',
+        'last_name' => 'Verdi',
+        'status' => 'active',
+        'emergency_contacts' => [
+            ['name' => 'Padre', 'phone' => '333-0000001'],
+            ['name' => 'Madre', 'phone' => '333-0000002'],
+        ],
+        'phone_contact_index' => 1,
+    ]);
+
+    $response->assertRedirect("/app/{$this->tenant->slug}/students");
+    $student = Student::where('first_name', 'Luca')->first();
+    expect($student->phone_contact_id)->not->toBeNull();
+    expect($student->phone)->toBeNull();
+
+    $linkedContact = $student->phoneContact;
+    expect($linkedContact->name)->toBe('Madre');
+    expect($linkedContact->phone)->toBe('333-0000002');
+});
+
 test('store valida i campi obbligatori', function () {
     $response = $this->post("/app/{$this->tenant->slug}/students", []);
 
@@ -100,8 +149,9 @@ test('store valida email unica per tenant', function () {
     $response->assertSessionHasErrors(['email']);
 });
 
-test('show mostra i dettagli allievo', function () {
+test('show mostra i dettagli allievo con contatti', function () {
     $student = Student::factory()->create();
+    $student->emergencyContacts()->create(['name' => 'Padre', 'phone' => '333-111']);
 
     $response = $this->get("/app/{$this->tenant->slug}/students/{$student->id}");
 
@@ -109,6 +159,19 @@ test('show mostra i dettagli allievo', function () {
     $response->assertInertia(fn ($page) => $page
         ->component('Tenant/Student/Show')
         ->has('student')
+        ->has('student.emergency_contacts', 1)
+        ->where('student.emergency_contacts.0.name', 'Padre')
+    );
+});
+
+test('show include effective_phone', function () {
+    $student = Student::factory()->create(['phone' => '333-PROPRIO']);
+
+    $response = $this->get("/app/{$this->tenant->slug}/students/{$student->id}");
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page
+        ->where('student.effective_phone', '333-PROPRIO')
     );
 });
 
@@ -139,6 +202,47 @@ test('update aggiorna un allievo', function () {
     ]);
 });
 
+test('update sincronizza i contatti di emergenza', function () {
+    $student = Student::factory()->create();
+    $student->emergencyContacts()->create(['name' => 'Vecchio', 'phone' => '000']);
+
+    $response = $this->put("/app/{$this->tenant->slug}/students/{$student->id}", [
+        'first_name' => $student->first_name,
+        'last_name' => $student->last_name,
+        'emergency_contacts' => [
+            ['name' => 'Nuovo1', 'phone' => '111'],
+            ['name' => 'Nuovo2', 'phone' => '222'],
+        ],
+    ]);
+
+    $response->assertRedirect();
+    $student->refresh();
+    expect($student->emergencyContacts)->toHaveCount(2);
+    $this->assertDatabaseMissing('emergency_contacts', ['name' => 'Vecchio']);
+    $this->assertDatabaseHas('emergency_contacts', ['student_id' => $student->id, 'name' => 'Nuovo1']);
+});
+
+test('update rimuove link telefono quando phone_contact_index è null', function () {
+    $student = Student::factory()->create(['phone' => null]);
+    $contact = $student->emergencyContacts()->create(['name' => 'Padre', 'phone' => '333']);
+    $student->update(['phone_contact_id' => $contact->id]);
+
+    $response = $this->put("/app/{$this->tenant->slug}/students/{$student->id}", [
+        'first_name' => $student->first_name,
+        'last_name' => $student->last_name,
+        'phone' => '555-PROPRIO',
+        'phone_contact_index' => null,
+        'emergency_contacts' => [
+            ['name' => 'Padre', 'phone' => '333'],
+        ],
+    ]);
+
+    $response->assertRedirect();
+    $student->refresh();
+    expect($student->phone_contact_id)->toBeNull();
+    expect($student->phone)->toBe('555-PROPRIO');
+});
+
 test('destroy archivia un allievo (soft delete)', function () {
     $student = Student::factory()->create();
 
@@ -155,4 +259,22 @@ test('un utente non può accedere agli allievi di un altro tenant', function () 
     $response = $this->get("/app/{$otherTenant->slug}/students");
 
     $response->assertForbidden();
+});
+
+test('emergency contacts rispettano isolamento tenant', function () {
+    $student = Student::factory()->create();
+    $student->emergencyContacts()->create(['name' => 'Contatto Tenant A', 'phone' => '333']);
+
+    // Crea tenant B
+    $otherUser = User::factory()->create();
+    $otherTenant = Tenant::factory()->create(['owner_id' => $otherUser->id]);
+
+    // I contatti del tenant A non devono essere visibili nel tenant B
+    tenancy()->end();
+    tenancy()->initialize($otherTenant);
+
+    expect(EmergencyContact::count())->toBe(0);
+
+    tenancy()->end();
+    tenancy()->initialize($this->tenant);
 });

@@ -1,3 +1,9 @@
+export type EmergencyContact = {
+    id: string;
+    name: string;
+    phone: string;
+};
+
 export type Student = {
     id: string;
     first_name: string;
@@ -7,8 +13,9 @@ export type Student = {
     date_of_birth: string | null;
     fiscal_code: string | null;
     address: string | null;
-    emergency_contact_name: string | null;
-    emergency_contact_phone: string | null;
+    emergency_contacts: EmergencyContact[];
+    phone_contact_id: string | null;
+    effective_phone: string | null;
     notes: string | null;
     status: 'active' | 'inactive' | 'suspended';
     enrolled_at: string | null;

@@ -21,8 +21,6 @@ class StudentFactory extends Factory
             'date_of_birth' => fake()->date(),
             'fiscal_code' => strtoupper(fake()->bothify('??????##?##?###?')),
             'address' => fake()->address(),
-            'emergency_contact_name' => fake()->name(),
-            'emergency_contact_phone' => fake()->phoneNumber(),
             'notes' => null,
             'status' => StudentStatus::Active,
             'enrolled_at' => now(),

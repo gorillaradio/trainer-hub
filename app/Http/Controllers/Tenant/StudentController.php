@@ -24,7 +24,7 @@ class StudentController extends Controller
     {
         $this->authorize('viewAny', Student::class);
 
-        $query = Student::query();
+        $query = Student::with('phoneContact');
 
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
@@ -73,7 +73,26 @@ class StudentController extends Controller
     {
         $this->authorize('create', Student::class);
 
-        Student::create($request->validated());
+        $validated = $request->validated();
+        $contacts = $validated['emergency_contacts'] ?? [];
+        $phoneContactIndex = $validated['phone_contact_index'] ?? null;
+        unset($validated['emergency_contacts'], $validated['phone_contact_index']);
+
+        $student = Student::create($validated);
+
+        if (! empty($contacts)) {
+            $createdContacts = [];
+            foreach ($contacts as $contact) {
+                $createdContacts[] = $student->emergencyContacts()->create($contact);
+            }
+
+            if ($phoneContactIndex !== null && isset($createdContacts[$phoneContactIndex])) {
+                $student->update([
+                    'phone_contact_id' => $createdContacts[$phoneContactIndex]->id,
+                    'phone' => null,
+                ]);
+            }
+        }
 
         return redirect()->route('tenant.students.index', tenant('slug'))
             ->with('success', 'Allievo aggiunto con successo.');
@@ -83,6 +102,8 @@ class StudentController extends Controller
     {
         $this->authorize('view', $student);
 
+        $student->load('emergencyContacts', 'phoneContact');
+
         return Inertia::render('Tenant/Student/Show', [
             'student' => $student,
         ]);
@@ -91,6 +112,8 @@ class StudentController extends Controller
     public function edit(Student $student)
     {
         $this->authorize('update', $student);
+
+        $student->load('emergencyContacts', 'phoneContact');
 
         return Inertia::render('Tenant/Student/Edit', [
             'student' => $student,
@@ -102,7 +125,27 @@ class StudentController extends Controller
     {
         $this->authorize('update', $student);
 
-        $student->update($request->validated());
+        $validated = $request->validated();
+        $contacts = $validated['emergency_contacts'] ?? [];
+        $phoneContactIndex = $validated['phone_contact_index'] ?? null;
+        unset($validated['emergency_contacts'], $validated['phone_contact_index']);
+
+        // Sync emergency contacts: delete old, create new
+        $student->emergencyContacts()->delete();
+
+        $createdContacts = [];
+        foreach ($contacts as $contact) {
+            $createdContacts[] = $student->emergencyContacts()->create($contact);
+        }
+
+        if ($phoneContactIndex !== null && isset($createdContacts[$phoneContactIndex])) {
+            $validated['phone_contact_id'] = $createdContacts[$phoneContactIndex]->id;
+            $validated['phone'] = null;
+        } else {
+            $validated['phone_contact_id'] = null;
+        }
+
+        $student->update($validated);
 
         return redirect()->route('tenant.students.show', [tenant('slug'), $student])
             ->with('success', 'Allievo aggiornato con successo.');

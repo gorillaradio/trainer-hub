@@ -1,13 +1,25 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DatePicker } from '@/components/ui/date-picker';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import type { Student, StudentStatus } from '@/types';
 import { useForm, usePage } from '@inertiajs/react';
+import { Phone, Plus, Trash2, Users } from 'lucide-react';
 import type { FormEvent } from 'react';
+
+type EmergencyContactFormData = {
+    name: string;
+    phone: string;
+};
 
 type StudentFormData = {
     first_name: string;
@@ -17,8 +29,8 @@ type StudentFormData = {
     date_of_birth: string;
     fiscal_code: string;
     address: string;
-    emergency_contact_name: string;
-    emergency_contact_phone: string;
+    emergency_contacts: EmergencyContactFormData[];
+    phone_contact_index: number | null;
     notes: string;
     status: string;
     enrolled_at: string;
@@ -30,10 +42,16 @@ type Props = {
     submitLabel: string;
 };
 
+function initPhoneContactIndex(student?: Student): number | null {
+    if (!student?.phone_contact_id || !student.emergency_contacts) return null;
+    const idx = student.emergency_contacts.findIndex(c => c.id === student.phone_contact_id);
+    return idx >= 0 ? idx : null;
+}
+
 export function StudentForm({ student, statuses, submitLabel }: Props) {
     const { tenant } = usePage().props as { tenant: { slug: string } };
 
-    const { data, setData, post, put, processing, errors } = useForm<StudentFormData>({
+    const { data, setData, post, put, processing, errors, transform } = useForm<StudentFormData>({
         first_name: student?.first_name ?? '',
         last_name: student?.last_name ?? '',
         email: student?.email ?? '',
@@ -41,12 +59,54 @@ export function StudentForm({ student, statuses, submitLabel }: Props) {
         date_of_birth: student?.date_of_birth ?? '',
         fiscal_code: student?.fiscal_code ?? '',
         address: student?.address ?? '',
-        emergency_contact_name: student?.emergency_contact_name ?? '',
-        emergency_contact_phone: student?.emergency_contact_phone ?? '',
+        emergency_contacts: student?.emergency_contacts?.map(c => ({ name: c.name, phone: c.phone })) ?? [],
+        phone_contact_index: initPhoneContactIndex(student),
         notes: student?.notes ?? '',
         status: student?.status ?? 'active',
         enrolled_at: student?.enrolled_at ?? new Date().toISOString().split('T')[0],
     });
+
+    transform((formData) => ({
+        ...formData,
+        emergency_contacts: formData.emergency_contacts.filter(c => c.name.trim() || c.phone.trim()),
+    }));
+
+    function addContact() {
+        setData('emergency_contacts', [...data.emergency_contacts, { name: '', phone: '' }]);
+    }
+
+    function removeContact(index: number) {
+        const updated = data.emergency_contacts.filter((_, i) => i !== index);
+        setData(prev => ({
+            ...prev,
+            emergency_contacts: updated,
+            phone_contact_index:
+                prev.phone_contact_index === index
+                    ? null
+                    : prev.phone_contact_index !== null && prev.phone_contact_index > index
+                        ? prev.phone_contact_index - 1
+                        : prev.phone_contact_index,
+            phone: prev.phone_contact_index === index ? '' : prev.phone,
+        }));
+    }
+
+    function updateContact(index: number, field: 'name' | 'phone', value: string) {
+        const updated = [...data.emergency_contacts];
+        updated[index] = { ...updated[index], [field]: value };
+        setData('emergency_contacts', updated);
+    }
+
+    function selectPhoneContact(index: number | null) {
+        setData(prev => ({
+            ...prev,
+            phone_contact_index: index,
+            phone: index === null ? '' : '',
+        }));
+    }
+
+    const linkedContact = data.phone_contact_index !== null
+        ? data.emergency_contacts[data.phone_contact_index]
+        : null;
 
     function handleSubmit(e: FormEvent) {
         e.preventDefault();
@@ -97,11 +157,47 @@ export function StudentForm({ student, statuses, submitLabel }: Props) {
 
                     <div className="space-y-2">
                         <Label htmlFor="phone">Telefono</Label>
-                        <Input
-                            id="phone"
-                            value={data.phone}
-                            onChange={(e) => setData('phone', e.target.value)}
-                        />
+                        <div className="flex gap-2">
+                            {linkedContact ? (
+                                <div className="flex flex-1 items-center gap-2 rounded-md border bg-muted px-3 py-2 text-sm">
+                                    <Phone className="size-4 shrink-0 text-muted-foreground" />
+                                    <span className="truncate">
+                                        {linkedContact.phone || '—'}{' '}
+                                        <span className="text-muted-foreground">
+                                            (da {linkedContact.name || 'contatto'})
+                                        </span>
+                                    </span>
+                                </div>
+                            ) : (
+                                <Input
+                                    id="phone"
+                                    className="flex-1"
+                                    value={data.phone}
+                                    onChange={(e) => setData('phone', e.target.value)}
+                                />
+                            )}
+                            {data.emergency_contacts.length > 0 && (
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button type="button" variant="outline" size="icon">
+                                            <Users className="size-4" />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                        <DropdownMenuItem onClick={() => selectPhoneContact(null)}>
+                                            <Phone className="mr-2 size-4" />
+                                            Numero proprio
+                                        </DropdownMenuItem>
+                                        {data.emergency_contacts.map((contact, i) => (
+                                            <DropdownMenuItem key={i} onClick={() => selectPhoneContact(i)}>
+                                                <Users className="mr-2 size-4" />
+                                                {contact.name || `Contatto ${i + 1}`} — {contact.phone || '—'}
+                                            </DropdownMenuItem>
+                                        ))}
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            )}
+                        </div>
                         {errors.phone && <p className="text-sm text-destructive">{errors.phone}</p>}
                     </div>
 
@@ -148,28 +244,65 @@ export function StudentForm({ student, statuses, submitLabel }: Props) {
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Contatto di emergenza</CardTitle>
+                    <div className="flex items-center justify-between">
+                        <CardTitle>Contatti di emergenza</CardTitle>
+                        <Button type="button" variant="outline" size="sm" onClick={addContact}>
+                            <Plus className="mr-2 size-4" />
+                            Aggiungi contatto
+                        </Button>
+                    </div>
                 </CardHeader>
-                <CardContent className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-2">
-                        <Label htmlFor="emergency_contact_name">Nome contatto</Label>
-                        <Input
-                            id="emergency_contact_name"
-                            value={data.emergency_contact_name}
-                            onChange={(e) => setData('emergency_contact_name', e.target.value)}
-                        />
-                        {errors.emergency_contact_name && <p className="text-sm text-destructive">{errors.emergency_contact_name}</p>}
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="emergency_contact_phone">Telefono contatto</Label>
-                        <Input
-                            id="emergency_contact_phone"
-                            value={data.emergency_contact_phone}
-                            onChange={(e) => setData('emergency_contact_phone', e.target.value)}
-                        />
-                        {errors.emergency_contact_phone && <p className="text-sm text-destructive">{errors.emergency_contact_phone}</p>}
-                    </div>
+                <CardContent>
+                    {data.emergency_contacts.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">Nessun contatto di emergenza aggiunto.</p>
+                    ) : (
+                        <div className="space-y-4">
+                            {data.emergency_contacts.map((contact, i) => (
+                                <div key={i} className="flex items-start gap-2">
+                                    <div className="grid flex-1 gap-4 sm:grid-cols-2">
+                                        <div className="space-y-2">
+                                            <Label>Nome contatto *</Label>
+                                            <Input
+                                                value={contact.name}
+                                                onChange={(e) => updateContact(i, 'name', e.target.value)}
+                                                placeholder="Nome e cognome"
+                                            />
+                                            {errors[`emergency_contacts.${i}.name` as keyof typeof errors] && (
+                                                <p className="text-sm text-destructive">
+                                                    {errors[`emergency_contacts.${i}.name` as keyof typeof errors]}
+                                                </p>
+                                            )}
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>Telefono contatto *</Label>
+                                            <Input
+                                                value={contact.phone}
+                                                onChange={(e) => updateContact(i, 'phone', e.target.value)}
+                                                placeholder="Numero di telefono"
+                                            />
+                                            {errors[`emergency_contacts.${i}.phone` as keyof typeof errors] && (
+                                                <p className="text-sm text-destructive">
+                                                    {errors[`emergency_contacts.${i}.phone` as keyof typeof errors]}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="mt-8 shrink-0"
+                                        onClick={() => removeContact(i)}
+                                    >
+                                        <Trash2 className="size-4" />
+                                    </Button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    {errors.emergency_contacts && (
+                        <p className="mt-2 text-sm text-destructive">{errors.emergency_contacts}</p>
+                    )}
                 </CardContent>
             </Card>
 

@@ -143,7 +143,7 @@ export default function StudentsIndex({ students, filters, statuses }: Props) {
                                             {student.email ?? '—'}
                                         </TableCell>
                                         <TableCell className="hidden sm:table-cell">
-                                            {student.phone ?? '—'}
+                                            {student.effective_phone ?? '—'}
                                         </TableCell>
                                         <TableCell>
                                             <Badge variant={statusVariant[student.status]}>
