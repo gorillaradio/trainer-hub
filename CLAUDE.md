@@ -27,7 +27,10 @@
 - `app/Models/Concerns/` — trait condivisi (BelongsToTenant, ecc.)
 - `app/Services/` — business logic, mai nei controller
 - `app/Enums/` — PHP 8.1 backed enums per status e tipi
-- `resources/js/pages/` — pagine Inertia (struttura dettata dallo starter kit)
+- `resources/js/pages/` — pagine Inertia
+  - Directory: PascalCase singolare, come il modello (`Tenant/Student/`, `Central/Onboarding/`)
+  - File: PascalCase (`Index.tsx`, `Create.tsx`, `Show.tsx`, `Edit.tsx`)
+  - Pagine centrali in `Central/`, pagine tenant in `Tenant/`
 - `resources/js/components/` — componenti riutilizzabili
 - `resources/js/layouts/` — layout condivisi
 
@@ -57,6 +60,7 @@
 - Colonne: snake_case (first_name, paid_at)
 - Route names: dot notation (tenant.students.index)
 - Componenti React: PascalCase (StudentList.tsx)
+- Pagine Inertia: directory PascalCase singolare + file PascalCase (`Tenant/Student/Index.tsx`)
 - Enums: PascalCase con valori snake_case
 
 ## Sicurezza

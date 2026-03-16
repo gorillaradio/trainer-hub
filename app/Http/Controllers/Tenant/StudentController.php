@@ -48,7 +48,7 @@ class StudentController extends Controller
 
         $students = $query->paginate(15)->withQueryString();
 
-        return Inertia::render('tenant/students/index', [
+        return Inertia::render('Tenant/Student/Index', [
             'students' => $students,
             'filters' => [
                 'search' => $request->input('search', ''),
@@ -64,7 +64,7 @@ class StudentController extends Controller
     {
         $this->authorize('create', Student::class);
 
-        return Inertia::render('tenant/students/create', [
+        return Inertia::render('Tenant/Student/Create', [
             'statuses' => $this->statusOptions(),
         ]);
     }
@@ -83,7 +83,7 @@ class StudentController extends Controller
     {
         $this->authorize('view', $student);
 
-        return Inertia::render('tenant/students/show', [
+        return Inertia::render('Tenant/Student/Show', [
             'student' => $student,
         ]);
     }
@@ -92,7 +92,7 @@ class StudentController extends Controller
     {
         $this->authorize('update', $student);
 
-        return Inertia::render('tenant/students/edit', [
+        return Inertia::render('Tenant/Student/Edit', [
             'student' => $student,
             'statuses' => $this->statusOptions(),
         ]);

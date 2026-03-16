@@ -16,7 +16,7 @@ class OnboardingController extends Controller
             return redirect()->route('tenant.dashboard', auth()->user()->currentTenant->slug);
         }
 
-        return Inertia::render('central/onboarding/create');
+        return Inertia::render('Central/Onboarding/Create');
     }
 
     public function store(Request $request)

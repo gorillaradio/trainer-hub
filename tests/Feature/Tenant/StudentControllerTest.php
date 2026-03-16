@@ -26,7 +26,7 @@ test('index mostra la lista allievi', function () {
 
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
-        ->component('tenant/students/index')
+        ->component('Tenant/Student/Index')
         ->has('students.data', 3)
     );
 });
@@ -60,7 +60,7 @@ test('create mostra il form', function () {
 
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
-        ->component('tenant/students/create')
+        ->component('Tenant/Student/Create')
     );
 });
 
@@ -107,7 +107,7 @@ test('show mostra i dettagli allievo', function () {
 
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
-        ->component('tenant/students/show')
+        ->component('Tenant/Student/Show')
         ->has('student')
     );
 });
@@ -119,7 +119,7 @@ test('edit mostra il form con dati precompilati', function () {
 
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
-        ->component('tenant/students/edit')
+        ->component('Tenant/Student/Edit')
         ->has('student')
     );
 });
