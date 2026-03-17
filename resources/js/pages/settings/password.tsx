@@ -3,10 +3,9 @@ import { Form, Head } from '@inertiajs/react';
 import { useRef } from 'react';
 import PasswordController from '@/actions/App/Http/Controllers/Settings/PasswordController';
 import Heading from '@/components/heading';
-import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { edit } from '@/routes/user-password';
@@ -61,10 +60,10 @@ export default function Password() {
                     >
                         {({ errors, processing, recentlySuccessful }) => (
                             <>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="current_password">
+                                <Field data-invalid={!!errors.current_password}>
+                                    <FieldLabel htmlFor="current_password">
                                         Current password
-                                    </Label>
+                                    </FieldLabel>
 
                                     <Input
                                         id="current_password"
@@ -74,17 +73,16 @@ export default function Password() {
                                         className="mt-1 block w-full"
                                         autoComplete="current-password"
                                         placeholder="Current password"
+                                        aria-invalid={!!errors.current_password}
                                     />
 
-                                    <InputError
-                                        message={errors.current_password}
-                                    />
-                                </div>
+                                    {errors.current_password && <FieldError>{errors.current_password}</FieldError>}
+                                </Field>
 
-                                <div className="grid gap-2">
-                                    <Label htmlFor="password">
+                                <Field data-invalid={!!errors.password}>
+                                    <FieldLabel htmlFor="password">
                                         New password
-                                    </Label>
+                                    </FieldLabel>
 
                                     <Input
                                         id="password"
@@ -94,15 +92,16 @@ export default function Password() {
                                         className="mt-1 block w-full"
                                         autoComplete="new-password"
                                         placeholder="New password"
+                                        aria-invalid={!!errors.password}
                                     />
 
-                                    <InputError message={errors.password} />
-                                </div>
+                                    {errors.password && <FieldError>{errors.password}</FieldError>}
+                                </Field>
 
-                                <div className="grid gap-2">
-                                    <Label htmlFor="password_confirmation">
+                                <Field data-invalid={!!errors.password_confirmation}>
+                                    <FieldLabel htmlFor="password_confirmation">
                                         Confirm password
-                                    </Label>
+                                    </FieldLabel>
 
                                     <Input
                                         id="password_confirmation"
@@ -111,12 +110,11 @@ export default function Password() {
                                         className="mt-1 block w-full"
                                         autoComplete="new-password"
                                         placeholder="Confirm password"
+                                        aria-invalid={!!errors.password_confirmation}
                                     />
 
-                                    <InputError
-                                        message={errors.password_confirmation}
-                                    />
-                                </div>
+                                    {errors.password_confirmation && <FieldError>{errors.password_confirmation}</FieldError>}
+                                </Field>
 
                                 <div className="flex items-center gap-4">
                                     <Button

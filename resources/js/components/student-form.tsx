@@ -8,8 +8,8 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import type { Student, StudentStatus } from '@/types';
 import { useTenant } from '@/hooks/use-tenant';
@@ -126,39 +126,42 @@ export function StudentForm({ student, statuses, submitLabel, formId }: Props) {
                     <CardTitle>Dati personali</CardTitle>
                 </CardHeader>
                 <CardContent className="grid gap-4 sm:grid-cols-2">
-                    <div className="flex flex-col gap-2">
-                        <Label htmlFor="first_name">Nome *</Label>
+                    <Field data-invalid={!!errors.first_name}>
+                        <FieldLabel htmlFor="first_name">Nome *</FieldLabel>
                         <Input
                             id="first_name"
                             value={data.first_name}
                             onChange={(e) => setData('first_name', e.target.value)}
+                            aria-invalid={!!errors.first_name}
                         />
-                        {errors.first_name && <p className="text-sm text-destructive">{errors.first_name}</p>}
-                    </div>
+                        {errors.first_name && <FieldError>{errors.first_name}</FieldError>}
+                    </Field>
 
-                    <div className="flex flex-col gap-2">
-                        <Label htmlFor="last_name">Cognome *</Label>
+                    <Field data-invalid={!!errors.last_name}>
+                        <FieldLabel htmlFor="last_name">Cognome *</FieldLabel>
                         <Input
                             id="last_name"
                             value={data.last_name}
                             onChange={(e) => setData('last_name', e.target.value)}
+                            aria-invalid={!!errors.last_name}
                         />
-                        {errors.last_name && <p className="text-sm text-destructive">{errors.last_name}</p>}
-                    </div>
+                        {errors.last_name && <FieldError>{errors.last_name}</FieldError>}
+                    </Field>
 
-                    <div className="flex flex-col gap-2">
-                        <Label htmlFor="email">Email</Label>
+                    <Field data-invalid={!!errors.email}>
+                        <FieldLabel htmlFor="email">Email</FieldLabel>
                         <Input
                             id="email"
                             type="email"
                             value={data.email}
                             onChange={(e) => setData('email', e.target.value)}
+                            aria-invalid={!!errors.email}
                         />
-                        {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
-                    </div>
+                        {errors.email && <FieldError>{errors.email}</FieldError>}
+                    </Field>
 
-                    <div className="flex flex-col gap-2">
-                        <Label htmlFor="phone">Telefono</Label>
+                    <Field data-invalid={!!errors.phone}>
+                        <FieldLabel htmlFor="phone">Telefono</FieldLabel>
                         <div className="flex gap-2">
                             {linkedContact ? (
                                 <div className="flex flex-1 items-center gap-2 rounded-md border bg-muted px-3 py-2 text-sm">
@@ -176,6 +179,7 @@ export function StudentForm({ student, statuses, submitLabel, formId }: Props) {
                                     className="flex-1"
                                     value={data.phone}
                                     onChange={(e) => setData('phone', e.target.value)}
+                                    aria-invalid={!!errors.phone}
                                 />
                             )}
                             {data.emergency_contacts.length > 0 && (
@@ -200,30 +204,32 @@ export function StudentForm({ student, statuses, submitLabel, formId }: Props) {
                                 </DropdownMenu>
                             )}
                         </div>
-                        {errors.phone && <p className="text-sm text-destructive">{errors.phone}</p>}
-                    </div>
+                        {errors.phone && <FieldError>{errors.phone}</FieldError>}
+                    </Field>
 
-                    <div className="flex flex-col gap-2">
-                        <Label htmlFor="date_of_birth">Data di nascita</Label>
+                    <Field data-invalid={!!errors.date_of_birth}>
+                        <FieldLabel htmlFor="date_of_birth">Data di nascita</FieldLabel>
                         <DatePicker
                             id="date_of_birth"
                             value={data.date_of_birth}
                             onChange={(value) => setData('date_of_birth', value)}
                             placeholder="Seleziona data di nascita"
+                            aria-invalid={!!errors.date_of_birth}
                         />
-                        {errors.date_of_birth && <p className="text-sm text-destructive">{errors.date_of_birth}</p>}
-                    </div>
+                        {errors.date_of_birth && <FieldError>{errors.date_of_birth}</FieldError>}
+                    </Field>
 
-                    <div className="flex flex-col gap-2">
-                        <Label htmlFor="fiscal_code">Codice fiscale</Label>
+                    <Field data-invalid={!!errors.fiscal_code}>
+                        <FieldLabel htmlFor="fiscal_code">Codice fiscale</FieldLabel>
                         <Input
                             id="fiscal_code"
                             value={data.fiscal_code}
                             onChange={(e) => setData('fiscal_code', e.target.value.toUpperCase())}
                             maxLength={16}
+                            aria-invalid={!!errors.fiscal_code}
                         />
-                        {errors.fiscal_code && <p className="text-sm text-destructive">{errors.fiscal_code}</p>}
-                    </div>
+                        {errors.fiscal_code && <FieldError>{errors.fiscal_code}</FieldError>}
+                    </Field>
                 </CardContent>
             </Card>
 
@@ -232,15 +238,16 @@ export function StudentForm({ student, statuses, submitLabel, formId }: Props) {
                     <CardTitle>Indirizzo</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="flex flex-col gap-2">
-                        <Label htmlFor="address">Indirizzo</Label>
+                    <Field data-invalid={!!errors.address}>
+                        <FieldLabel htmlFor="address">Indirizzo</FieldLabel>
                         <Input
                             id="address"
                             value={data.address}
                             onChange={(e) => setData('address', e.target.value)}
+                            aria-invalid={!!errors.address}
                         />
-                        {errors.address && <p className="text-sm text-destructive">{errors.address}</p>}
-                    </div>
+                        {errors.address && <FieldError>{errors.address}</FieldError>}
+                    </Field>
                 </CardContent>
             </Card>
 
@@ -262,32 +269,34 @@ export function StudentForm({ student, statuses, submitLabel, formId }: Props) {
                             {data.emergency_contacts.map((contact, i) => (
                                 <div key={i} className="flex items-start gap-2">
                                     <div className="grid flex-1 gap-4 sm:grid-cols-2">
-                                        <div className="flex flex-col gap-2">
-                                            <Label>Nome contatto *</Label>
+                                        <Field data-invalid={!!errors[`emergency_contacts.${i}.name` as keyof typeof errors]}>
+                                            <FieldLabel>Nome contatto *</FieldLabel>
                                             <Input
                                                 value={contact.name}
                                                 onChange={(e) => updateContact(i, 'name', e.target.value)}
                                                 placeholder="Nome e cognome"
+                                                aria-invalid={!!errors[`emergency_contacts.${i}.name` as keyof typeof errors]}
                                             />
                                             {errors[`emergency_contacts.${i}.name` as keyof typeof errors] && (
-                                                <p className="text-sm text-destructive">
+                                                <FieldError>
                                                     {errors[`emergency_contacts.${i}.name` as keyof typeof errors]}
-                                                </p>
+                                                </FieldError>
                                             )}
-                                        </div>
-                                        <div className="flex flex-col gap-2">
-                                            <Label>Telefono contatto *</Label>
+                                        </Field>
+                                        <Field data-invalid={!!errors[`emergency_contacts.${i}.phone` as keyof typeof errors]}>
+                                            <FieldLabel>Telefono contatto *</FieldLabel>
                                             <Input
                                                 value={contact.phone}
                                                 onChange={(e) => updateContact(i, 'phone', e.target.value)}
                                                 placeholder="Numero di telefono"
+                                                aria-invalid={!!errors[`emergency_contacts.${i}.phone` as keyof typeof errors]}
                                             />
                                             {errors[`emergency_contacts.${i}.phone` as keyof typeof errors] && (
-                                                <p className="text-sm text-destructive">
+                                                <FieldError>
                                                     {errors[`emergency_contacts.${i}.phone` as keyof typeof errors]}
-                                                </p>
+                                                </FieldError>
                                             )}
-                                        </div>
+                                        </Field>
                                     </div>
                                     <Button
                                         type="button"
@@ -303,7 +312,7 @@ export function StudentForm({ student, statuses, submitLabel, formId }: Props) {
                         </div>
                     )}
                     {errors.emergency_contacts && (
-                        <p className="mt-2 text-sm text-destructive">{errors.emergency_contacts}</p>
+                        <FieldError className="mt-2">{errors.emergency_contacts}</FieldError>
                     )}
                 </CardContent>
             </Card>
@@ -313,33 +322,36 @@ export function StudentForm({ student, statuses, submitLabel, formId }: Props) {
                     <CardTitle>Iscrizione</CardTitle>
                 </CardHeader>
                 <CardContent className="grid gap-4 sm:grid-cols-2">
-                    <div className="flex flex-col gap-2">
-                        <Label htmlFor="status">Stato</Label>
+                    <Field data-invalid={!!errors.status}>
+                        <FieldLabel htmlFor="status">Stato</FieldLabel>
                         <Select value={data.status} onValueChange={(value) => setData('status', value)}>
-                            <SelectTrigger>
+                            <SelectTrigger aria-invalid={!!errors.status}>
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                {statuses.map((s) => (
-                                    <SelectItem key={s.value} value={s.value}>
-                                        {s.label}
-                                    </SelectItem>
-                                ))}
+                                <SelectGroup>
+                                    {statuses.map((s) => (
+                                        <SelectItem key={s.value} value={s.value}>
+                                            {s.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectGroup>
                             </SelectContent>
                         </Select>
-                        {errors.status && <p className="text-sm text-destructive">{errors.status}</p>}
-                    </div>
+                        {errors.status && <FieldError>{errors.status}</FieldError>}
+                    </Field>
 
-                    <div className="flex flex-col gap-2">
-                        <Label htmlFor="enrolled_at">Data iscrizione</Label>
+                    <Field data-invalid={!!errors.enrolled_at}>
+                        <FieldLabel htmlFor="enrolled_at">Data iscrizione</FieldLabel>
                         <DatePicker
                             id="enrolled_at"
                             value={data.enrolled_at}
                             onChange={(value) => setData('enrolled_at', value)}
                             placeholder="Seleziona data iscrizione"
+                            aria-invalid={!!errors.enrolled_at}
                         />
-                        {errors.enrolled_at && <p className="text-sm text-destructive">{errors.enrolled_at}</p>}
-                    </div>
+                        {errors.enrolled_at && <FieldError>{errors.enrolled_at}</FieldError>}
+                    </Field>
                 </CardContent>
             </Card>
 
@@ -348,14 +360,17 @@ export function StudentForm({ student, statuses, submitLabel, formId }: Props) {
                     <CardTitle>Note</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <Textarea
-                        id="notes"
-                        value={data.notes}
-                        onChange={(e) => setData('notes', e.target.value)}
-                        rows={4}
-                        placeholder="Note aggiuntive sull'allievo..."
-                    />
-                    {errors.notes && <p className="text-sm text-destructive">{errors.notes}</p>}
+                    <Field data-invalid={!!errors.notes}>
+                        <Textarea
+                            id="notes"
+                            value={data.notes}
+                            onChange={(e) => setData('notes', e.target.value)}
+                            rows={4}
+                            placeholder="Note aggiuntive sull'allievo..."
+                            aria-invalid={!!errors.notes}
+                        />
+                        {errors.notes && <FieldError>{errors.notes}</FieldError>}
+                    </Field>
                 </CardContent>
             </Card>
 

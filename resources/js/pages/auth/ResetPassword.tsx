@@ -1,8 +1,7 @@
 import { Form, Head } from '@inertiajs/react';
-import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/auth-layout';
 import { update } from '@/routes/password';
@@ -27,8 +26,8 @@ export default function ResetPassword({ token, email }: Props) {
             >
                 {({ processing, errors }) => (
                     <div className="grid gap-6">
-                        <div className="grid gap-2">
-                            <Label htmlFor="email">Email</Label>
+                        <Field data-invalid={!!errors.email}>
+                            <FieldLabel htmlFor="email">Email</FieldLabel>
                             <Input
                                 id="email"
                                 type="email"
@@ -37,15 +36,13 @@ export default function ResetPassword({ token, email }: Props) {
                                 value={email}
                                 className="mt-1 block w-full"
                                 readOnly
+                                aria-invalid={!!errors.email}
                             />
-                            <InputError
-                                message={errors.email}
-                                className="mt-2"
-                            />
-                        </div>
+                            {errors.email && <FieldError>{errors.email}</FieldError>}
+                        </Field>
 
-                        <div className="grid gap-2">
-                            <Label htmlFor="password">Password</Label>
+                        <Field data-invalid={!!errors.password}>
+                            <FieldLabel htmlFor="password">Password</FieldLabel>
                             <Input
                                 id="password"
                                 type="password"
@@ -54,14 +51,15 @@ export default function ResetPassword({ token, email }: Props) {
                                 className="mt-1 block w-full"
                                 autoFocus
                                 placeholder="Password"
+                                aria-invalid={!!errors.password}
                             />
-                            <InputError message={errors.password} />
-                        </div>
+                            {errors.password && <FieldError>{errors.password}</FieldError>}
+                        </Field>
 
-                        <div className="grid gap-2">
-                            <Label htmlFor="password_confirmation">
+                        <Field data-invalid={!!errors.password_confirmation}>
+                            <FieldLabel htmlFor="password_confirmation">
                                 Confirm password
-                            </Label>
+                            </FieldLabel>
                             <Input
                                 id="password_confirmation"
                                 type="password"
@@ -69,12 +67,10 @@ export default function ResetPassword({ token, email }: Props) {
                                 autoComplete="new-password"
                                 className="mt-1 block w-full"
                                 placeholder="Confirm password"
+                                aria-invalid={!!errors.password_confirmation}
                             />
-                            <InputError
-                                message={errors.password_confirmation}
-                                className="mt-2"
-                            />
-                        </div>
+                            {errors.password_confirmation && <FieldError>{errors.password_confirmation}</FieldError>}
+                        </Field>
 
                         <Button
                             type="submit"

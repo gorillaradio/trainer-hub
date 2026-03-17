@@ -3,10 +3,9 @@ import { Form, Head, Link, usePage } from '@inertiajs/react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import DeleteUser from '@/components/delete-user';
 import Heading from '@/components/heading';
-import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { edit } from '@/routes/profile';
@@ -52,8 +51,8 @@ export default function Profile({
                     >
                         {({ processing, recentlySuccessful, errors }) => (
                             <>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="name">Name</Label>
+                                <Field data-invalid={!!errors.name}>
+                                    <FieldLabel htmlFor="name">Name</FieldLabel>
 
                                     <Input
                                         id="name"
@@ -63,16 +62,14 @@ export default function Profile({
                                         required
                                         autoComplete="name"
                                         placeholder="Full name"
+                                        aria-invalid={!!errors.name}
                                     />
 
-                                    <InputError
-                                        className="mt-2"
-                                        message={errors.name}
-                                    />
-                                </div>
+                                    {errors.name && <FieldError>{errors.name}</FieldError>}
+                                </Field>
 
-                                <div className="grid gap-2">
-                                    <Label htmlFor="email">Email address</Label>
+                                <Field data-invalid={!!errors.email}>
+                                    <FieldLabel htmlFor="email">Email address</FieldLabel>
 
                                     <Input
                                         id="email"
@@ -83,13 +80,11 @@ export default function Profile({
                                         required
                                         autoComplete="username"
                                         placeholder="Email address"
+                                        aria-invalid={!!errors.email}
                                     />
 
-                                    <InputError
-                                        className="mt-2"
-                                        message={errors.email}
-                                    />
-                                </div>
+                                    {errors.email && <FieldError>{errors.email}</FieldError>}
+                                </Field>
 
                                 {mustVerifyEmail &&
                                     auth.user.email_verified_at === null && (

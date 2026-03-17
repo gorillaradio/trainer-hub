@@ -1,10 +1,9 @@
 import { Form, Head } from '@inertiajs/react';
-import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/auth-layout';
 import { register } from '@/routes';
@@ -37,8 +36,8 @@ export default function Login({
                 {({ processing, errors }) => (
                     <>
                         <div className="grid gap-6">
-                            <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
+                            <Field data-invalid={!!errors.email}>
+                                <FieldLabel htmlFor="email">Email address</FieldLabel>
                                 <Input
                                     id="email"
                                     type="email"
@@ -48,13 +47,14 @@ export default function Login({
                                     tabIndex={1}
                                     autoComplete="email"
                                     placeholder="email@example.com"
+                                    aria-invalid={!!errors.email}
                                 />
-                                <InputError message={errors.email} />
-                            </div>
+                                {errors.email && <FieldError>{errors.email}</FieldError>}
+                            </Field>
 
-                            <div className="grid gap-2">
+                            <Field data-invalid={!!errors.password}>
                                 <div className="flex items-center">
-                                    <Label htmlFor="password">Password</Label>
+                                    <FieldLabel htmlFor="password">Password</FieldLabel>
                                     {canResetPassword && (
                                         <TextLink
                                             href={request()}
@@ -73,9 +73,10 @@ export default function Login({
                                     tabIndex={2}
                                     autoComplete="current-password"
                                     placeholder="Password"
+                                    aria-invalid={!!errors.password}
                                 />
-                                <InputError message={errors.password} />
-                            </div>
+                                {errors.password && <FieldError>{errors.password}</FieldError>}
+                            </Field>
 
                             <div className="flex items-center space-x-3">
                                 <Checkbox
@@ -83,7 +84,7 @@ export default function Login({
                                     name="remember"
                                     tabIndex={3}
                                 />
-                                <Label htmlFor="remember">Remember me</Label>
+                                <FieldLabel htmlFor="remember">Remember me</FieldLabel>
                             </div>
 
                             <Button

@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import {
     Select,
     SelectContent,
+    SelectGroup,
     SelectItem,
     SelectTrigger,
     SelectValue,
@@ -103,12 +104,14 @@ export default function StudentsIndex({ students, filters, statuses }: Props) {
                                 <SelectValue placeholder="Tutti gli stati" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="all">Tutti gli stati</SelectItem>
-                                {statuses.map((s) => (
-                                    <SelectItem key={s.value} value={s.value}>
-                                        {s.label}
-                                    </SelectItem>
-                                ))}
+                                <SelectGroup>
+                                    <SelectItem value="all">Tutti gli stati</SelectItem>
+                                    {statuses.map((s) => (
+                                        <SelectItem key={s.value} value={s.value}>
+                                            {s.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectGroup>
                             </SelectContent>
                         </Select>
                     </div>

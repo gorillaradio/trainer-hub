@@ -1,11 +1,10 @@
 // Components
 import { Form, Head } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
-import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import AuthLayout from '@/layouts/auth-layout';
 import { login } from '@/routes';
 import { email } from '@/routes/password';
@@ -28,8 +27,8 @@ export default function ForgotPassword({ status }: { status?: string }) {
                 <Form {...email.form()}>
                     {({ processing, errors }) => (
                         <>
-                            <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
+                            <Field data-invalid={!!errors.email}>
+                                <FieldLabel htmlFor="email">Email address</FieldLabel>
                                 <Input
                                     id="email"
                                     type="email"
@@ -37,10 +36,10 @@ export default function ForgotPassword({ status }: { status?: string }) {
                                     autoComplete="off"
                                     autoFocus
                                     placeholder="email@example.com"
+                                    aria-invalid={!!errors.email}
                                 />
-
-                                <InputError message={errors.email} />
-                            </div>
+                                {errors.email && <FieldError>{errors.email}</FieldError>}
+                            </Field>
 
                             <div className="my-6 flex items-center justify-start">
                                 <Button

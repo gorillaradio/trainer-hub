@@ -2,7 +2,6 @@ import { Form } from '@inertiajs/react';
 import { useRef } from 'react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import Heading from '@/components/heading';
-import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -13,8 +12,10 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { TriangleAlert } from 'lucide-react';
 
 export default function DeleteUser() {
     const passwordInput = useRef<HTMLInputElement>(null);
@@ -26,13 +27,14 @@ export default function DeleteUser() {
                 title="Delete account"
                 description="Delete your account and all of its resources"
             />
-            <div className="space-y-4 rounded-lg border border-destructive/20 bg-destructive/5 p-4">
-                <div className="relative space-y-0.5 text-destructive">
-                    <p className="font-medium">Warning</p>
-                    <p className="text-sm">
+            <div className="space-y-4">
+                <Alert variant="destructive">
+                    <TriangleAlert />
+                    <AlertTitle>Warning</AlertTitle>
+                    <AlertDescription>
                         Please proceed with caution, this cannot be undone.
-                    </p>
-                </div>
+                    </AlertDescription>
+                </Alert>
 
                 <Dialog>
                     <DialogTrigger asChild>
@@ -65,13 +67,13 @@ export default function DeleteUser() {
                         >
                             {({ resetAndClearErrors, processing, errors }) => (
                                 <>
-                                    <div className="grid gap-2">
-                                        <Label
+                                    <Field data-invalid={!!errors.password}>
+                                        <FieldLabel
                                             htmlFor="password"
                                             className="sr-only"
                                         >
                                             Password
-                                        </Label>
+                                        </FieldLabel>
 
                                         <Input
                                             id="password"
@@ -80,10 +82,11 @@ export default function DeleteUser() {
                                             ref={passwordInput}
                                             placeholder="Password"
                                             autoComplete="current-password"
+                                            aria-invalid={!!errors.password}
                                         />
 
-                                        <InputError message={errors.password} />
-                                    </div>
+                                        {errors.password && <FieldError>{errors.password}</FieldError>}
+                                    </Field>
 
                                     <DialogFooter className="gap-2">
                                         <DialogClose asChild>

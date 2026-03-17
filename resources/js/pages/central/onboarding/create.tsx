@@ -1,10 +1,9 @@
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import InputError from '@/components/input-error';
 import CentralLayout from '@/layouts/central-layout';
 import type { FormEvent, ReactNode } from 'react';
 
@@ -42,8 +41,8 @@ export default function OnboardingCreate() {
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-                            <div className="grid gap-2">
-                                <Label htmlFor="name">Nome organizzazione</Label>
+                            <Field data-invalid={!!errors.name}>
+                                <FieldLabel htmlFor="name">Nome organizzazione</FieldLabel>
                                 <Input
                                     id="name"
                                     type="text"
@@ -52,9 +51,10 @@ export default function OnboardingCreate() {
                                     required
                                     autoFocus
                                     placeholder="Es. Palestra Gorilla"
+                                    aria-invalid={!!errors.name}
                                 />
-                                <InputError message={errors.name} />
-                            </div>
+                                {errors.name && <FieldError>{errors.name}</FieldError>}
+                            </Field>
 
                             {slug && (
                                 <p className="text-sm text-muted-foreground">

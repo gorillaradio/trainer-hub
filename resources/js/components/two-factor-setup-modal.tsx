@@ -4,6 +4,7 @@ import { Check, Copy, ScanLine } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AlertError from '@/components/alert-error';
 import InputError from '@/components/input-error';
+import { FieldSeparator } from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -101,12 +102,7 @@ function TwoFactorSetupStep({
                         </Button>
                     </div>
 
-                    <div className="relative flex w-full items-center justify-center">
-                        <div className="absolute inset-0 top-1/2 h-px w-full bg-border" />
-                        <span className="relative bg-card px-2 py-1">
-                            or, enter the code manually
-                        </span>
-                    </div>
+                    <FieldSeparator>or, enter the code manually</FieldSeparator>
 
                     <div className="flex w-full space-x-2">
                         <div className="flex w-full items-stretch overflow-hidden rounded-xl border border-border">
