@@ -17,7 +17,7 @@ import TenantLayout from '@/layouts/tenant-layout';
 import type { Student, StudentStatus } from '@/types';
 import { useTenant } from '@/hooks/use-tenant';
 import { Head, router } from '@inertiajs/react';
-import { Archive, Pause } from 'lucide-react';
+import { Archive, Pause, Play } from 'lucide-react';
 import type { ReactElement } from 'react';
 
 type Props = {
@@ -46,45 +46,82 @@ export default function StudentsEdit({ student, statuses }: Props) {
                 />
                 <StudentForm formId="student-form" student={student} statuses={statuses} submitLabel="Salva modifiche" />
 
-                {student.status === 'active' && (
+                {student.status !== 'inactive' && (
                     <Card className="mt-8 border-destructive">
                         <CardHeader>
                             <CardTitle className="text-destructive">Zona pericolosa</CardTitle>
                         </CardHeader>
                         <CardContent className="flex flex-col gap-4">
-                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                <div>
-                                    <p className="font-medium">Sospendi allievo</p>
-                                    <p className="text-sm text-muted-foreground">
-                                        L'allievo non potrà partecipare alle attività fino alla riattivazione.
-                                    </p>
-                                </div>
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                        <Button variant="outline">
-                                            <Pause data-icon="inline-start" />
-                                            Sospendi
-                                        </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                            <AlertDialogTitle>Sospendere questo allievo?</AlertDialogTitle>
-                                            <AlertDialogDescription>
-                                                {student.first_name} {student.last_name} verrà sospeso.
-                                                Potrai riattivarlo in qualsiasi momento.
-                                            </AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel>Annulla</AlertDialogCancel>
-                                            <AlertDialogAction
-                                                onClick={() => router.put(`${prefix}/students/${student.id}/suspend`)}
-                                            >
+                            {student.status === 'active' && (
+                                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <div>
+                                        <p className="font-medium">Sospendi allievo</p>
+                                        <p className="text-sm text-muted-foreground">
+                                            L'allievo non potrà partecipare alle attività fino alla riattivazione.
+                                        </p>
+                                    </div>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button variant="outline">
+                                                <Pause data-icon="inline-start" />
                                                 Sospendi
-                                            </AlertDialogAction>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
-                            </div>
+                                            </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Sospendere questo allievo?</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    {student.first_name} {student.last_name} verrà sospeso.
+                                                    Potrai riattivarlo in qualsiasi momento.
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Annulla</AlertDialogCancel>
+                                                <AlertDialogAction
+                                                    onClick={() => router.put(`${prefix}/students/${student.id}/suspend`)}
+                                                >
+                                                    Sospendi
+                                                </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                </div>
+                            )}
+
+                            {student.status === 'suspended' && (
+                                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <div>
+                                        <p className="font-medium">Riattiva allievo</p>
+                                        <p className="text-sm text-muted-foreground">
+                                            L'allievo tornerà attivo e potrà partecipare alle attività.
+                                        </p>
+                                    </div>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button variant="outline">
+                                                <Play data-icon="inline-start" />
+                                                Riattiva
+                                            </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Riattivare questo allievo?</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    {student.first_name} {student.last_name} tornerà attivo.
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Annulla</AlertDialogCancel>
+                                                <AlertDialogAction
+                                                    onClick={() => router.put(`${prefix}/students/${student.id}/reactivate`)}
+                                                >
+                                                    Riattiva
+                                                </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                </div>
+                            )}
 
                             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                 <div>

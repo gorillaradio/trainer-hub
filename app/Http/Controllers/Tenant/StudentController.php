@@ -171,6 +171,16 @@ class StudentController extends Controller
             ->with('success', 'Allievo archiviato.');
     }
 
+    public function reactivate(Student $student)
+    {
+        $this->authorize('update', $student);
+
+        $student->update(['status' => StudentStatus::Active]);
+
+        return redirect()->route('tenant.students.show', [tenant('slug'), $student])
+            ->with('success', 'Allievo riattivato.');
+    }
+
     public function destroy(Student $student)
     {
         $this->authorize('delete', $student);
