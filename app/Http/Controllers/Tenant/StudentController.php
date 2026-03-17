@@ -46,7 +46,7 @@ class StudentController extends Controller
             $query->orderBy($sortField, $sortDirection === 'desc' ? 'desc' : 'asc');
         }
 
-        $students = $query->paginate(15)->withQueryString();
+        $students = $query->get();
 
         return Inertia::render('Tenant/Student/Index', [
             'students' => $students,
@@ -151,6 +151,26 @@ class StudentController extends Controller
             ->with('success', 'Allievo aggiornato con successo.');
     }
 
+    public function suspend(Student $student)
+    {
+        $this->authorize('update', $student);
+
+        $student->update(['status' => StudentStatus::Suspended]);
+
+        return redirect()->route('tenant.students.show', [tenant('slug'), $student])
+            ->with('success', 'Allievo sospeso.');
+    }
+
+    public function archive(Student $student)
+    {
+        $this->authorize('update', $student);
+
+        $student->update(['status' => StudentStatus::Inactive]);
+
+        return redirect()->route('tenant.students.index', tenant('slug'))
+            ->with('success', 'Allievo archiviato.');
+    }
+
     public function destroy(Student $student)
     {
         $this->authorize('delete', $student);
@@ -158,6 +178,6 @@ class StudentController extends Controller
         $student->delete();
 
         return redirect()->route('tenant.students.index', tenant('slug'))
-            ->with('success', 'Allievo archiviato con successo.');
+            ->with('success', 'Allievo eliminato.');
     }
 }

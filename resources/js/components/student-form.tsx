@@ -12,7 +12,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import type { Student, StudentStatus } from '@/types';
-import { useForm, usePage } from '@inertiajs/react';
+import { useTenant } from '@/hooks/use-tenant';
+import { useForm } from '@inertiajs/react';
 import { Phone, Plus, Trash2, Users } from 'lucide-react';
 import type { FormEvent } from 'react';
 
@@ -40,6 +41,7 @@ type Props = {
     student?: Student;
     statuses: StudentStatus[];
     submitLabel: string;
+    formId?: string;
 };
 
 function initPhoneContactIndex(student?: Student): number | null {
@@ -48,8 +50,8 @@ function initPhoneContactIndex(student?: Student): number | null {
     return idx >= 0 ? idx : null;
 }
 
-export function StudentForm({ student, statuses, submitLabel }: Props) {
-    const { tenant } = usePage().props as { tenant: { slug: string } };
+export function StudentForm({ student, statuses, submitLabel, formId }: Props) {
+    const tenant = useTenant();
 
     const { data, setData, post, put, processing, errors, transform } = useForm<StudentFormData>({
         first_name: student?.first_name ?? '',
@@ -118,13 +120,13 @@ export function StudentForm({ student, statuses, submitLabel }: Props) {
     }
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form id={formId} onSubmit={handleSubmit} className="flex flex-col gap-6">
             <Card>
                 <CardHeader>
                     <CardTitle>Dati personali</CardTitle>
                 </CardHeader>
                 <CardContent className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-2">
+                    <div className="flex flex-col gap-2">
                         <Label htmlFor="first_name">Nome *</Label>
                         <Input
                             id="first_name"
@@ -134,7 +136,7 @@ export function StudentForm({ student, statuses, submitLabel }: Props) {
                         {errors.first_name && <p className="text-sm text-destructive">{errors.first_name}</p>}
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="flex flex-col gap-2">
                         <Label htmlFor="last_name">Cognome *</Label>
                         <Input
                             id="last_name"
@@ -144,7 +146,7 @@ export function StudentForm({ student, statuses, submitLabel }: Props) {
                         {errors.last_name && <p className="text-sm text-destructive">{errors.last_name}</p>}
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="flex flex-col gap-2">
                         <Label htmlFor="email">Email</Label>
                         <Input
                             id="email"
@@ -155,7 +157,7 @@ export function StudentForm({ student, statuses, submitLabel }: Props) {
                         {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="flex flex-col gap-2">
                         <Label htmlFor="phone">Telefono</Label>
                         <div className="flex gap-2">
                             {linkedContact ? (
@@ -185,12 +187,12 @@ export function StudentForm({ student, statuses, submitLabel }: Props) {
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
                                         <DropdownMenuItem onClick={() => selectPhoneContact(null)}>
-                                            <Phone className="mr-2 size-4" />
+                                            <Phone data-icon="inline-start" />
                                             Numero proprio
                                         </DropdownMenuItem>
                                         {data.emergency_contacts.map((contact, i) => (
                                             <DropdownMenuItem key={i} onClick={() => selectPhoneContact(i)}>
-                                                <Users className="mr-2 size-4" />
+                                                <Users data-icon="inline-start" />
                                                 {contact.name || `Contatto ${i + 1}`} — {contact.phone || '—'}
                                             </DropdownMenuItem>
                                         ))}
@@ -201,7 +203,7 @@ export function StudentForm({ student, statuses, submitLabel }: Props) {
                         {errors.phone && <p className="text-sm text-destructive">{errors.phone}</p>}
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="flex flex-col gap-2">
                         <Label htmlFor="date_of_birth">Data di nascita</Label>
                         <DatePicker
                             id="date_of_birth"
@@ -212,7 +214,7 @@ export function StudentForm({ student, statuses, submitLabel }: Props) {
                         {errors.date_of_birth && <p className="text-sm text-destructive">{errors.date_of_birth}</p>}
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="flex flex-col gap-2">
                         <Label htmlFor="fiscal_code">Codice fiscale</Label>
                         <Input
                             id="fiscal_code"
@@ -230,7 +232,7 @@ export function StudentForm({ student, statuses, submitLabel }: Props) {
                     <CardTitle>Indirizzo</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="space-y-2">
+                    <div className="flex flex-col gap-2">
                         <Label htmlFor="address">Indirizzo</Label>
                         <Input
                             id="address"
@@ -247,7 +249,7 @@ export function StudentForm({ student, statuses, submitLabel }: Props) {
                     <div className="flex items-center justify-between">
                         <CardTitle>Contatti di emergenza</CardTitle>
                         <Button type="button" variant="outline" size="sm" onClick={addContact}>
-                            <Plus className="mr-2 size-4" />
+                            <Plus data-icon="inline-start" />
                             Aggiungi contatto
                         </Button>
                     </div>
@@ -256,11 +258,11 @@ export function StudentForm({ student, statuses, submitLabel }: Props) {
                     {data.emergency_contacts.length === 0 ? (
                         <p className="text-sm text-muted-foreground">Nessun contatto di emergenza aggiunto.</p>
                     ) : (
-                        <div className="space-y-4">
+                        <div className="flex flex-col gap-4">
                             {data.emergency_contacts.map((contact, i) => (
                                 <div key={i} className="flex items-start gap-2">
                                     <div className="grid flex-1 gap-4 sm:grid-cols-2">
-                                        <div className="space-y-2">
+                                        <div className="flex flex-col gap-2">
                                             <Label>Nome contatto *</Label>
                                             <Input
                                                 value={contact.name}
@@ -273,7 +275,7 @@ export function StudentForm({ student, statuses, submitLabel }: Props) {
                                                 </p>
                                             )}
                                         </div>
-                                        <div className="space-y-2">
+                                        <div className="flex flex-col gap-2">
                                             <Label>Telefono contatto *</Label>
                                             <Input
                                                 value={contact.phone}
@@ -311,7 +313,7 @@ export function StudentForm({ student, statuses, submitLabel }: Props) {
                     <CardTitle>Iscrizione</CardTitle>
                 </CardHeader>
                 <CardContent className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-2">
+                    <div className="flex flex-col gap-2">
                         <Label htmlFor="status">Stato</Label>
                         <Select value={data.status} onValueChange={(value) => setData('status', value)}>
                             <SelectTrigger>
@@ -328,7 +330,7 @@ export function StudentForm({ student, statuses, submitLabel }: Props) {
                         {errors.status && <p className="text-sm text-destructive">{errors.status}</p>}
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="flex flex-col gap-2">
                         <Label htmlFor="enrolled_at">Data iscrizione</Label>
                         <DatePicker
                             id="enrolled_at"
@@ -357,11 +359,13 @@ export function StudentForm({ student, statuses, submitLabel }: Props) {
                 </CardContent>
             </Card>
 
-            <div className="flex justify-end">
-                <Button type="submit" disabled={processing}>
-                    {submitLabel}
-                </Button>
-            </div>
+            {!formId && (
+                <div className="flex justify-end">
+                    <Button type="submit" disabled={processing}>
+                        {submitLabel}
+                    </Button>
+                </div>
+            )}
         </form>
     );
 }

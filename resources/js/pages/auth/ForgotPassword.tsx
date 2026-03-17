@@ -19,7 +19,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
             <Head title="Forgot password" />
 
             {status && (
-                <div className="mb-4 text-center text-sm font-medium text-green-600">
+                <div className="mb-4 text-center text-sm font-medium text-muted-foreground">
                     {status}
                 </div>
             )}
@@ -49,7 +49,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
                                     data-test="email-password-reset-link-button"
                                 >
                                     {processing && (
-                                        <LoaderCircle className="h-4 w-4 animate-spin" />
+                                        <LoaderCircle className="size-4 animate-spin" />
                                     )}
                                     Email password reset link
                                 </Button>

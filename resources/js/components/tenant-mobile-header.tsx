@@ -1,4 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
+import { useTenant } from '@/hooks/use-tenant';
 import AppLogoIcon from '@/components/app-logo-icon';
 import { UserInfo } from '@/components/user-info';
 import { UserMenuContent } from '@/components/user-menu-content';
@@ -10,10 +11,8 @@ import {
 import { Button } from '@/components/ui/button';
 
 export function TenantMobileHeader() {
-    const { auth, tenant } = usePage().props as {
-        auth: { user: { name: string; email: string; avatar?: string } };
-        tenant: { id: string; name: string; slug: string };
-    };
+    const { auth } = usePage().props;
+    const tenant = useTenant();
 
     return (
         <header className="flex h-14 shrink-0 items-center justify-between border-b px-4">

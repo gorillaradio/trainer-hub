@@ -82,7 +82,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                                     size="icon"
                                     className="mr-2 h-[34px] w-[34px]"
                                 >
-                                    <Menu className="h-5 w-5" />
+                                    <Menu data-icon="inline-start" />
                                 </Button>
                             </SheetTrigger>
                             <SheetContent
@@ -93,7 +93,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                                     Navigation menu
                                 </SheetTitle>
                                 <SheetHeader className="flex justify-start text-left">
-                                    <AppLogoIcon className="h-6 w-6 fill-current text-black dark:text-white" />
+                                    <AppLogoIcon className="size-6 fill-current text-black dark:text-white" />
                                 </SheetHeader>
                                 <div className="flex h-full flex-1 flex-col space-y-4 p-4">
                                     <div className="flex h-full flex-col justify-between text-sm">
@@ -105,7 +105,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                                                     className="flex items-center space-x-2 font-medium"
                                                 >
                                                     {item.icon && (
-                                                        <item.icon className="h-5 w-5" />
+                                                        <item.icon data-icon="inline-start" />
                                                     )}
                                                     <span>{item.title}</span>
                                                 </Link>
@@ -122,7 +122,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                                                     className="flex items-center space-x-2 font-medium"
                                                 >
                                                     {item.icon && (
-                                                        <item.icon className="h-5 w-5" />
+                                                        <item.icon data-icon="inline-start" />
                                                     )}
                                                     <span>{item.title}</span>
                                                 </a>
@@ -163,7 +163,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                                             )}
                                         >
                                             {item.icon && (
-                                                <item.icon className="mr-2 h-4 w-4" />
+                                                <item.icon data-icon="inline-start" />
                                             )}
                                             {item.title}
                                         </Link>
@@ -181,9 +181,9 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="group h-9 w-9 cursor-pointer"
+                                className="group size-9 cursor-pointer"
                             >
-                                <Search className="!size-5 opacity-80 group-hover:opacity-100" />
+                                <Search className="opacity-80 group-hover:opacity-100" data-icon="inline-start" />
                             </Button>
                             <div className="ml-1 hidden gap-1 lg:flex">
                                 {rightNavItems.map((item) => (
@@ -197,13 +197,13 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                                                     href={toUrl(item.href)}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="group inline-flex h-9 w-9 items-center justify-center rounded-md bg-transparent p-0 text-sm font-medium text-accent-foreground ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
+                                                    className="group inline-flex size-9 items-center justify-center rounded-md bg-transparent p-0 text-sm font-medium text-accent-foreground ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
                                                 >
                                                     <span className="sr-only">
                                                         {item.title}
                                                     </span>
                                                     {item.icon && (
-                                                        <item.icon className="size-5 opacity-80 group-hover:opacity-100" />
+                                                        <item.icon className="opacity-80 group-hover:opacity-100" />
                                                     )}
                                                 </a>
                                             </TooltipTrigger>

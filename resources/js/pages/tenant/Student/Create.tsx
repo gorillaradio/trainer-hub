@@ -22,7 +22,7 @@ export default function StudentsCreate({ statuses }: Props) {
 
 StudentsCreate.layout = (page: ReactNode) => (
     <TenantLayout breadcrumbs={[
-        { title: 'Allievi', href: '../students' },
+        { title: 'Allievi', href: 'students' },
         { title: 'Nuovo', href: '#' },
     ]}>
         {page}

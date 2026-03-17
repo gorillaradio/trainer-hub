@@ -1,4 +1,6 @@
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { PageHeader } from '@/components/page-header';
+import { useTenant } from '@/hooks/use-tenant';
+import { Head, Link, router } from '@inertiajs/react';
 import { ArrowUpDown, Plus } from 'lucide-react';
 import type { ReactNode } from 'react';
 
@@ -22,7 +24,7 @@ import {
 } from '@/components/ui/table';
 import TenantLayout from '@/layouts/tenant-layout';
 import { statusLabel, statusVariant } from '@/lib/student-status';
-import type { PaginatedData, Student, StudentFilters, StudentStatus } from '@/types';
+import type { Student, StudentFilters, StudentStatus } from '@/types';
 
 function SortableHeader({ field, children, onSort }: { field: string; children: React.ReactNode; onSort: (field: string) => void }) {
     return (
@@ -39,24 +41,24 @@ function SortableHeader({ field, children, onSort }: { field: string; children: 
 }
 
 type Props = {
-    students: PaginatedData<Student>;
+    students: Student[];
     filters: StudentFilters;
     statuses: StudentStatus[];
 };
 
 export default function StudentsIndex({ students, filters, statuses }: Props) {
-    const { tenant } = usePage().props as { tenant: { slug: string } };
+    const tenant = useTenant();
     const prefix = `/app/${tenant.slug}`;
 
     function handleSearch(value: string) {
-        router.get(`${prefix}/students`, { ...filters, search: value, page: 1 }, {
+        router.get(`${prefix}/students`, { ...filters, search: value }, {
             preserveState: true,
             replace: true,
         });
     }
 
     function handleStatusFilter(value: string) {
-        router.get(`${prefix}/students`, { ...filters, status: value === 'all' ? '' : value, page: 1 }, {
+        router.get(`${prefix}/students`, { ...filters, status: value === 'all' ? '' : value }, {
             preserveState: true,
             replace: true,
         });
@@ -74,40 +76,43 @@ export default function StudentsIndex({ students, filters, statuses }: Props) {
         <>
             <Head title="Allievi" />
             <div className="flex flex-1 flex-col gap-4 p-4">
-                <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-semibold">Allievi</h1>
-                    <Button asChild>
-                        <Link href={`${prefix}/students/create`}>
-                            <Plus className="mr-2 size-4" />
-                            Nuovo allievo
-                        </Link>
-                    </Button>
-                </div>
-
-                <div className="flex flex-col gap-2 sm:flex-row">
-                    <Input
-                        placeholder="Cerca per nome, cognome o email..."
-                        defaultValue={filters.search}
-                        onChange={(e) => handleSearch(e.target.value)}
-                        className="sm:max-w-sm"
-                    />
-                    <Select
-                        value={filters.status || 'all'}
-                        onValueChange={handleStatusFilter}
-                    >
-                        <SelectTrigger className="sm:w-48">
-                            <SelectValue placeholder="Tutti gli stati" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Tutti gli stati</SelectItem>
-                            {statuses.map((s) => (
-                                <SelectItem key={s.value} value={s.value}>
-                                    {s.label}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
+                <PageHeader
+                    sticky
+                    title={<h1 className="text-2xl font-semibold">Allievi</h1>}
+                    actions={
+                        <Button asChild>
+                            <Link href={`${prefix}/students/create`}>
+                                <Plus data-icon="inline-start" />
+                                Nuovo allievo
+                            </Link>
+                        </Button>
+                    }
+                >
+                    <div className="flex flex-col gap-2 sm:flex-row">
+                        <Input
+                            placeholder="Cerca per nome, cognome o email..."
+                            defaultValue={filters.search}
+                            onChange={(e) => handleSearch(e.target.value)}
+                            className="sm:max-w-sm"
+                        />
+                        <Select
+                            value={filters.status || 'all'}
+                            onValueChange={handleStatusFilter}
+                        >
+                            <SelectTrigger className="sm:w-48">
+                                <SelectValue placeholder="Tutti gli stati" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Tutti gli stati</SelectItem>
+                                {statuses.map((s) => (
+                                    <SelectItem key={s.value} value={s.value}>
+                                        {s.label}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </PageHeader>
 
                 <div className="rounded-md border">
                     <Table>
@@ -121,14 +126,14 @@ export default function StudentsIndex({ students, filters, statuses }: Props) {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {students.data.length === 0 ? (
+                            {students.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
                                         Nessun allievo trovato.
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                students.data.map((student) => (
+                                students.map((student) => (
                                     <TableRow key={student.id}>
                                         <TableCell>
                                             <Link
@@ -157,34 +162,6 @@ export default function StudentsIndex({ students, filters, statuses }: Props) {
                     </Table>
                 </div>
 
-                {students.last_page > 1 && (
-                    <div className="flex items-center justify-between">
-                        <p className="text-sm text-muted-foreground">
-                            {students.from}–{students.to} di {students.total} allievi
-                        </p>
-                        <div className="flex gap-2">
-                            {students.links.map((link, i) => (
-                                <Button
-                                    key={i}
-                                    variant={link.active ? 'default' : 'outline'}
-                                    size="sm"
-                                    disabled={!link.url}
-                                    asChild={!!link.url}
-                                >
-                                    {link.url ? (
-                                        <Link
-                                            href={link.url}
-                                            preserveState
-                                            dangerouslySetInnerHTML={{ __html: link.label }}
-                                        />
-                                    ) : (
-                                        <span dangerouslySetInnerHTML={{ __html: link.label }} />
-                                    )}
-                                </Button>
-                            ))}
-                        </div>
-                    </div>
-                )}
             </div>
         </>
     );

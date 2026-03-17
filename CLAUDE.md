@@ -49,9 +49,17 @@
 - Componenti shadcn/ui come base, personalizzati solo se necessario
 - Inertia `useForm` per tutti i form
 - Props tipizzate con interface TypeScript
-- Hook `useTenantRoute()` per generare URL tenant-aware
+- Hook `useTenant()` per accedere al tenant corrente nei componenti tenant-scoped
 - Layout assegnato con persistent layout pattern di Inertia
 - Mobile-first: il trainer usa spesso il telefono
+
+## Qualità codice
+
+- MAI usare hack, workaround o scorciatoie per zittire il compilatore
+- MAI `!` (non-null assertion), MAI `as` (unsafe cast), MAI `any`
+- Se TypeScript si lamenta, risolvere alla radice con tipi corretti, hook custom o guard
+- MAI percorsi relativi (`../`, `../../`) per navigazione — usare path assoluti o risolti dal layout
+- Seguire sempre le best practices di React, TypeScript, Inertia, Tailwind e shadcn
 
 ## Review Frontend
 

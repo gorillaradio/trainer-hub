@@ -1,9 +1,10 @@
-import { Head, usePage } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
+import { useTenant } from '@/hooks/use-tenant';
 import TenantLayout from '@/layouts/tenant-layout';
 import type { ReactNode } from 'react';
 
 export default function TenantDashboard() {
-    const { tenant } = usePage().props as { tenant: { name: string } };
+    const tenant = useTenant();
 
     return (
         <>
