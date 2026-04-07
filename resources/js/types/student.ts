@@ -16,6 +16,14 @@ export type Student = {
     emergency_contacts: EmergencyContact[];
     phone_contact_id: string | null;
     effective_phone: string | null;
+    groups?: Array<{
+        id: string;
+        name: string;
+        color: string;
+        monthly_fee_amount: number;
+        pivot: { is_primary: boolean };
+    }>;
+    monthly_fee_override: number | null;
     notes: string | null;
     status: 'active' | 'inactive' | 'suspended';
     enrolled_at: string | null;

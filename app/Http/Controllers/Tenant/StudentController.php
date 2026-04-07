@@ -6,6 +6,7 @@ use App\Enums\StudentStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\StoreStudentRequest;
 use App\Http\Requests\Tenant\UpdateStudentRequest;
+use App\Models\Group;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -102,10 +103,11 @@ class StudentController extends Controller
     {
         $this->authorize('view', $student);
 
-        $student->load('emergencyContacts', 'phoneContact');
+        $student->load('emergencyContacts', 'phoneContact', 'groups');
 
         return Inertia::render('Tenant/Student/Show', [
             'student' => $student,
+            'availableGroups' => Group::orderBy('name')->get(['id', 'name', 'color', 'monthly_fee_amount']),
         ]);
     }
 

@@ -1,10 +1,11 @@
 import { PageHeader } from '@/components/page-header';
+import StudentGroupsCard from '@/components/student-groups-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import TenantLayout from '@/layouts/tenant-layout';
 import { statusLabel, statusVariant } from '@/lib/student-status';
-import type { Student } from '@/types';
+import type { Group, Student } from '@/types';
 import { useTenant } from '@/hooks/use-tenant';
 import { Head, Link } from '@inertiajs/react';
 import { format, parse } from 'date-fns';
@@ -19,6 +20,7 @@ function formatDate(value: string | null): string | null {
 
 type Props = {
     student: Student;
+    availableGroups: Group[];
 };
 
 function Field({ label, value }: { label: string; value: string | null }) {
@@ -31,9 +33,25 @@ function Field({ label, value }: { label: string; value: string | null }) {
     );
 }
 
-export default function StudentsShow({ student }: Props) {
+function computeEffectiveRate(student: Student): number | null {
+    if (student.monthly_fee_override !== null) {
+        return student.monthly_fee_override;
+    }
+    const groups = student.groups ?? [];
+    const primaryGroup = groups.find((g) => g.pivot.is_primary);
+    if (primaryGroup) {
+        return primaryGroup.monthly_fee_amount;
+    }
+    if (groups.length > 0) {
+        return Math.min(...groups.map((g) => g.monthly_fee_amount));
+    }
+    return null;
+}
+
+export default function StudentsShow({ student, availableGroups }: Props) {
     const tenant = useTenant();
     const prefix = `/app/${tenant.slug}`;
+    const effectiveRate = computeEffectiveRate(student);
 
     return (
         <>
@@ -92,6 +110,14 @@ export default function StudentsShow({ student }: Props) {
                             </div>
                         </CardContent>
                     </Card>
+
+                    <StudentGroupsCard
+                        studentId={student.id}
+                        groups={student.groups ?? []}
+                        availableGroups={availableGroups}
+                        effectiveRate={effectiveRate}
+                        monthlyFeeOverride={student.monthly_fee_override}
+                    />
 
                     {student.address && (
                         <Card>

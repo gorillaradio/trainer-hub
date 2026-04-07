@@ -3,6 +3,7 @@
 use App\Http\Controllers\Tenant\DashboardController;
 use App\Http\Controllers\Tenant\GroupController;
 use App\Http\Controllers\Tenant\StudentController;
+use App\Http\Controllers\Tenant\StudentGroupController;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByPath;
 
@@ -25,4 +26,13 @@ Route::middleware(['web', 'auth', InitializeTenancyByPath::class, 'tenant.access
         Route::resource('groups', GroupController::class)
             ->except('show')
             ->names('tenant.groups');
+
+        Route::post('students/{student}/groups', [StudentGroupController::class, 'attach'])
+            ->name('tenant.students.groups.attach');
+        Route::delete('students/{student}/groups/primary', [StudentGroupController::class, 'clearPrimary'])
+            ->name('tenant.students.groups.clear-primary');
+        Route::delete('students/{student}/groups/{group}', [StudentGroupController::class, 'detach'])
+            ->name('tenant.students.groups.detach');
+        Route::put('students/{student}/groups/{group}/primary', [StudentGroupController::class, 'setPrimary'])
+            ->name('tenant.students.groups.set-primary');
     });
