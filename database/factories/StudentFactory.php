@@ -24,6 +24,9 @@ class StudentFactory extends Factory
             'notes' => null,
             'status' => StudentStatus::Active,
             'enrolled_at' => now(),
+            'monthly_fee_override' => null,
+            'current_cycle_started_at' => null,
+            'past_cycles' => null,
         ];
     }
 

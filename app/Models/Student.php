@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
@@ -21,12 +22,16 @@ class Student extends Model
         'date_of_birth', 'fiscal_code', 'address',
         'phone_contact_id',
         'notes', 'status', 'enrolled_at',
+        'monthly_fee_override', 'current_cycle_started_at', 'past_cycles',
     ];
 
     protected $casts = [
         'date_of_birth' => 'date:Y-m-d',
         'enrolled_at' => 'date:Y-m-d',
         'status' => StudentStatus::class,
+        'current_cycle_started_at' => 'date:Y-m-d',
+        'monthly_fee_override' => 'integer',
+        'past_cycles' => 'array',
     ];
 
     protected $appends = ['effective_phone'];
@@ -71,9 +76,16 @@ class Student extends Model
         return $this->hasMany(Document::class);
     }
 
-    public function unpaidFees(): HasMany
+    public function payments(): HasMany
     {
-        return $this->monthlyFees()->whereNull('paid_at');
+        return $this->hasMany(Payment::class);
+    }
+
+    public function groups(): BelongsToMany
+    {
+        return $this->belongsToMany(Group::class, 'group_student')
+            ->withPivot('is_primary')
+            ->withTimestamps();
     }
 
     public function expiringDocuments(): HasMany
