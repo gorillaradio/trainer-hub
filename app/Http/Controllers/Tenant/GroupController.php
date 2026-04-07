@@ -39,11 +39,24 @@ class GroupController extends Controller
             ->with('success', 'Gruppo creato con successo.');
     }
 
+    public function show(Group $group)
+    {
+        $this->authorize('view', $group);
+
+        $group->load(['students' => function ($query) {
+            $query->select('students.id', 'first_name', 'last_name')
+                  ->orderBy('last_name')
+                  ->orderBy('first_name');
+        }]);
+
+        return Inertia::render('Tenant/Group/Show', [
+            'group' => $group,
+        ]);
+    }
+
     public function edit(Group $group)
     {
         $this->authorize('update', $group);
-
-        $group->load(['students:id,first_name,last_name']);
 
         return Inertia::render('Tenant/Group/Edit', [
             'group' => $group,

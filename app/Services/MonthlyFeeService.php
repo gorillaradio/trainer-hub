@@ -7,6 +7,7 @@ use App\Models\MonthlyFee;
 use App\Models\Payment;
 use App\Models\Student;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 
 class MonthlyFeeService
 {
@@ -49,6 +50,22 @@ class MonthlyFeeService
         }
 
         return $periods;
+    }
+
+    /**
+     * Get uncovered period counts for multiple students in a batch.
+     *
+     * @param  Collection<int, Student>  $students
+     * @return array<string, int> student_id => uncovered count
+     */
+    public function getUncoveredCountsBatch(Collection $students): array
+    {
+        $result = [];
+        foreach ($students as $student) {
+            $result[$student->id] = count($this->getUncoveredPeriods($student));
+        }
+
+        return $result;
     }
 
     /**

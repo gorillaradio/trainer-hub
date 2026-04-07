@@ -14,6 +14,9 @@ Route::middleware(['web', 'auth', InitializeTenancyByPath::class, 'tenant.access
         Route::get('/dashboard', [DashboardController::class, 'index'])
             ->name('tenant.dashboard');
 
+        Route::get('students/search', [StudentController::class, 'search'])
+            ->name('tenant.students.search');
+
         Route::resource('students', StudentController::class)
             ->names('tenant.students');
 
@@ -25,18 +28,15 @@ Route::middleware(['web', 'auth', InitializeTenancyByPath::class, 'tenant.access
             ->name('tenant.students.reactivate');
 
         Route::resource('groups', GroupController::class)
-            ->except('show')
             ->names('tenant.groups');
 
         Route::post('students/{student}/groups', [StudentGroupController::class, 'attach'])
             ->name('tenant.students.groups.attach');
-        Route::delete('students/{student}/groups/primary', [StudentGroupController::class, 'clearPrimary'])
-            ->name('tenant.students.groups.clear-primary');
         Route::delete('students/{student}/groups/{group}', [StudentGroupController::class, 'detach'])
             ->name('tenant.students.groups.detach');
-        Route::put('students/{student}/groups/{group}/primary', [StudentGroupController::class, 'setPrimary'])
-            ->name('tenant.students.groups.set-primary');
 
+        Route::get('students/{student}/payment-data', [StudentPaymentController::class, 'paymentData'])
+            ->name('tenant.students.payment-data');
         Route::post('students/{student}/payments/monthly', [StudentPaymentController::class, 'registerMonthly'])
             ->name('tenant.students.payments.monthly');
         Route::post('students/{student}/payments/enrollment', [StudentPaymentController::class, 'registerEnrollment'])

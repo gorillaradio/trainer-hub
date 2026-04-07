@@ -109,7 +109,7 @@ test('edit mostra il form con dati precompilati', function () {
     );
 });
 
-test('edit include la lista studenti del gruppo', function () {
+test('edit non include la lista studenti (spostata in show)', function () {
     $group = Group::factory()->create();
     $student = Student::factory()->create();
     $group->students()->attach($student->id);
@@ -118,7 +118,7 @@ test('edit include la lista studenti del gruppo', function () {
 
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
-        ->has('group.students', 1)
+        ->missing('group.students')
     );
 });
 

@@ -38,7 +38,8 @@ class StudentController extends Controller
             });
         }
 
-        if ($status = $request->input('status')) {
+        $status = $request->input('status', 'active');
+        if ($status && $status !== 'all') {
             $query->where('status', $status);
         }
 
@@ -52,15 +53,33 @@ class StudentController extends Controller
 
         $students = $query->get();
 
+        $paymentInfo = [];
+        if ($request->boolean('payments')) {
+            $students->load('groups');
+            $feeCalculation = app(FeeCalculationService::class);
+            $monthlyFeeService = app(MonthlyFeeService::class);
+
+            $uncoveredCounts = $monthlyFeeService->getUncoveredCountsBatch($students);
+
+            foreach ($students as $student) {
+                $paymentInfo[$student->id] = [
+                    'uncovered_count' => $uncoveredCounts[$student->id] ?? 0,
+                    'has_rate' => $feeCalculation->getEffectiveRate($student) !== null,
+                ];
+            }
+        }
+
         return Inertia::render('Tenant/Student/Index', [
             'students' => $students,
             'filters' => [
                 'search' => $request->input('search', ''),
-                'status' => $request->input('status', ''),
+                'status' => $status,
                 'sort' => $sortField,
                 'direction' => $sortDirection,
+                'payments' => $request->boolean('payments'),
             ],
             'statuses' => $this->statusOptions(),
+            'paymentInfo' => $paymentInfo,
         ]);
     }
 
@@ -209,6 +228,31 @@ class StudentController extends Controller
 
         return redirect()->route('tenant.students.show', [tenant('slug'), $student])
             ->with('success', 'Allievo riattivato.');
+    }
+
+    public function search(Request $request)
+    {
+        $this->authorize('viewAny', Student::class);
+
+        $query = Student::where('status', 'active')
+            ->select('id', 'first_name', 'last_name');
+
+        if ($search = $request->input('q')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%");
+            });
+        }
+
+        if ($excludeGroup = $request->input('exclude_group')) {
+            $query->whereDoesntHave('groups', function ($q) use ($excludeGroup) {
+                $q->where('groups.id', $excludeGroup);
+            });
+        }
+
+        return response()->json(
+            $query->orderBy('last_name')->orderBy('first_name')->limit(10)->get()
+        );
     }
 
     public function destroy(Student $student)

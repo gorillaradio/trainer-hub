@@ -8,7 +8,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import type { Student, StudentStatus } from '@/types';
@@ -35,6 +35,7 @@ type StudentFormData = {
     notes: string;
     status: string;
     enrolled_at: string;
+    monthly_fee_override: string;
 };
 
 type Props = {
@@ -66,11 +67,15 @@ export function StudentForm({ student, statuses, submitLabel, formId }: Props) {
         notes: student?.notes ?? '',
         status: student?.status ?? 'active',
         enrolled_at: student?.enrolled_at ?? new Date().toISOString().split('T')[0],
+        monthly_fee_override: student?.monthly_fee_override !== null && student?.monthly_fee_override !== undefined
+            ? (student.monthly_fee_override / 100).toFixed(2)
+            : '',
     });
 
     transform((formData) => ({
         ...formData,
         emergency_contacts: formData.emergency_contacts.filter(c => c.name.trim() || c.phone.trim()),
+        monthly_fee_override: formData.monthly_fee_override.trim() === '' ? null : formData.monthly_fee_override,
     }));
 
     function addContact() {
@@ -351,6 +356,22 @@ export function StudentForm({ student, statuses, submitLabel, formId }: Props) {
                             aria-invalid={!!errors.enrolled_at}
                         />
                         {errors.enrolled_at && <FieldError>{errors.enrolled_at}</FieldError>}
+                    </Field>
+
+                    <Field data-invalid={!!errors.monthly_fee_override}>
+                        <FieldLabel htmlFor="monthly_fee_override">Tariffa personalizzata (€/mese)</FieldLabel>
+                        <Input
+                            id="monthly_fee_override"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            placeholder="Usa tariffa gruppo"
+                            value={data.monthly_fee_override}
+                            onChange={(e) => setData('monthly_fee_override', e.target.value)}
+                            aria-invalid={!!errors.monthly_fee_override}
+                        />
+                        <FieldDescription>Se impostata, sovrascrive la tariffa del gruppo.</FieldDescription>
+                        {errors.monthly_fee_override && <FieldError>{errors.monthly_fee_override}</FieldError>}
                     </Field>
                 </CardContent>
             </Card>

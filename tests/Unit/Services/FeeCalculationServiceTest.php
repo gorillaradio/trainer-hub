@@ -27,30 +27,14 @@ afterEach(function () {
 test('getEffectiveRate returns monthly_fee_override when set', function () {
     $student = Student::factory()->create(['monthly_fee_override' => 3500]);
     $group = Group::factory()->create(['monthly_fee_amount' => 5000]);
-    $student->groups()->attach($group->id, ['is_primary' => true]);
+    $student->groups()->attach($group->id);
 
     $rate = $this->service->getEffectiveRate($student);
 
     expect($rate)->toBe(3500);
 });
 
-test('getEffectiveRate returns primary group fee when set', function () {
-    $student = Student::factory()->create(['monthly_fee_override' => null]);
-    $group1 = Group::factory()->create(['monthly_fee_amount' => 3000]);
-    $group2 = Group::factory()->create(['monthly_fee_amount' => 6000]);
-
-    $student->groups()->attach($group1->id, ['is_primary' => false]);
-    $student->groups()->attach($group2->id, ['is_primary' => true]);
-
-    // Reload student to get fresh groups relation
-    $student = $student->fresh();
-
-    $rate = $this->service->getEffectiveRate($student);
-
-    expect($rate)->toBe(6000);
-});
-
-test('getEffectiveRate returns min group fee without primary', function () {
+test('getEffectiveRate returns min group fee when no override', function () {
     $student = Student::factory()->create(['monthly_fee_override' => null]);
     $group1 = Group::factory()->create(['monthly_fee_amount' => 3000]);
     $group2 = Group::factory()->create(['monthly_fee_amount' => 6000]);
@@ -78,7 +62,7 @@ test('getEffectiveRate with single group returns that fee', function () {
     $student = Student::factory()->create(['monthly_fee_override' => null]);
     $group = Group::factory()->create(['monthly_fee_amount' => 4000]);
 
-    $student->groups()->attach($group->id, ['is_primary' => true]);
+    $student->groups()->attach($group->id);
 
     $student = $student->fresh();
 

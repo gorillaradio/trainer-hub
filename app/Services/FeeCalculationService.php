@@ -11,9 +11,8 @@ class FeeCalculationService
      *
      * Priority:
      * 1. If $student->monthly_fee_override is not null, return it
-     * 2. If student has a group with pivot.is_primary === true, return that group's monthly_fee_amount
-     * 3. If student has groups but none primary, return MIN(monthly_fee_amount) across groups
-     * 4. If no groups and no override, return null
+     * 2. If student has groups, return MIN(monthly_fee_amount) across groups
+     * 3. If no groups and no override, return null
      */
     public function getEffectiveRate(Student $student): ?int
     {
@@ -27,12 +26,6 @@ class FeeCalculationService
 
         if ($groups->isEmpty()) {
             return null;
-        }
-
-        // Check for primary group
-        $primaryGroup = $groups->firstWhere('pivot.is_primary', true);
-        if ($primaryGroup) {
-            return $primaryGroup->monthly_fee_amount;
         }
 
         // Return minimum fee amount

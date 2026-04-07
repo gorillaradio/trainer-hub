@@ -29,25 +29,4 @@ class StudentGroupController extends Controller
         return redirect()->back()->with('success', 'Studente rimosso dal gruppo.');
     }
 
-    public function setPrimary(Student $student, Group $group)
-    {
-        $this->authorize('update', $student);
-        // Clear all primary flags
-        $student->groups()->updateExistingPivot(
-            $student->groups->pluck('id')->toArray(),
-            ['is_primary' => false]
-        );
-        $student->groups()->updateExistingPivot($group->id, ['is_primary' => true]);
-        return redirect()->back()->with('success', 'Gruppo principale aggiornato.');
-    }
-
-    public function clearPrimary(Student $student)
-    {
-        $this->authorize('update', $student);
-        $student->groups()->updateExistingPivot(
-            $student->groups->pluck('id')->toArray(),
-            ['is_primary' => false]
-        );
-        return redirect()->back()->with('success', 'Gruppo principale rimosso.');
-    }
 }

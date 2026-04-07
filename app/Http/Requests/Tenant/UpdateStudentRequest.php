@@ -35,6 +35,16 @@ class UpdateStudentRequest extends FormRequest
             'notes' => ['nullable', 'string', 'max:5000'],
             'status' => ['sometimes', Rule::enum(StudentStatus::class)],
             'enrolled_at' => ['nullable', 'date'],
+            'monthly_fee_override' => ['nullable', 'numeric', 'min:0'],
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('monthly_fee_override') && $this->monthly_fee_override !== null && $this->monthly_fee_override !== '') {
+            $this->merge([
+                'monthly_fee_override' => (int) round($this->monthly_fee_override * 100),
+            ]);
+        }
     }
 }

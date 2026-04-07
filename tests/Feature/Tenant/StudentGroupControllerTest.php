@@ -101,49 +101,6 @@ test('detach non fallisce se lo studente non era nel gruppo', function () {
     $response->assertRedirect();
 });
 
-// ─── setPrimary ───────────────────────────────────────────────────────────────
-
-test('setPrimary segna un gruppo come principale e rimuove il flag dagli altri', function () {
-    $student = Student::factory()->create();
-    $groupA = Group::factory()->create();
-    $groupB = Group::factory()->create();
-    $student->groups()->attach($groupA->id, ['is_primary' => true]);
-    $student->groups()->attach($groupB->id, ['is_primary' => false]);
-
-    $response = $this->put("/app/{$this->tenant->slug}/students/{$student->id}/groups/{$groupB->id}/primary");
-
-    $response->assertRedirect();
-    $this->assertDatabaseHas('group_student', [
-        'student_id' => $student->id,
-        'group_id'   => $groupB->id,
-        'is_primary' => true,
-    ]);
-    $this->assertDatabaseHas('group_student', [
-        'student_id' => $student->id,
-        'group_id'   => $groupA->id,
-        'is_primary' => false,
-    ]);
-});
-
-// ─── clearPrimary ─────────────────────────────────────────────────────────────
-
-test('clearPrimary rimuove il flag principale da tutti i gruppi', function () {
-    $student = Student::factory()->create();
-    $groupA = Group::factory()->create();
-    $groupB = Group::factory()->create();
-    $student->groups()->attach($groupA->id, ['is_primary' => true]);
-    $student->groups()->attach($groupB->id, ['is_primary' => false]);
-
-    $response = $this->delete("/app/{$this->tenant->slug}/students/{$student->id}/groups/primary");
-
-    $response->assertRedirect();
-    $this->assertDatabaseHas('group_student', [
-        'student_id' => $student->id,
-        'group_id'   => $groupA->id,
-        'is_primary' => false,
-    ]);
-});
-
 // ─── Authorization ────────────────────────────────────────────────────────────
 
 test('utente non autenticato non può assegnare gruppi', function () {

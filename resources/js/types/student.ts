@@ -21,7 +21,6 @@ export type Student = {
         name: string;
         color: string;
         monthly_fee_amount: number;
-        pivot: { is_primary: boolean };
     }>;
     monthly_fee_override: number | null;
     notes: string | null;
@@ -41,6 +40,12 @@ export type StudentFilters = {
     status: string;
     sort: string;
     direction: 'asc' | 'desc';
+    payments: boolean;
+};
+
+export type StudentPaymentInfo = {
+    uncovered_count: number;
+    has_rate: boolean;
 };
 
 export type PaginatedData<T> = {

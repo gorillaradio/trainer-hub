@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useTenant } from '@/hooks/use-tenant';
 import type { Group } from '@/types';
 import { router } from '@inertiajs/react';
-import { Crown, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useState } from 'react';
 
 type AssignedGroup = {
@@ -12,7 +12,6 @@ type AssignedGroup = {
     name: string;
     color: string;
     monthly_fee_amount: number;
-    pivot: { is_primary: boolean };
 };
 
 type Props = {
@@ -56,20 +55,6 @@ export default function StudentGroupsCard({
         });
     }
 
-    function handleSetPrimary(groupId: string) {
-        router.put(`${prefix}/students/${studentId}/groups/${groupId}/primary`, {}, {
-            preserveScroll: true,
-        });
-    }
-
-    function handleClearPrimary() {
-        router.delete(`${prefix}/students/${studentId}/groups/primary`, {
-            preserveScroll: true,
-        });
-    }
-
-    const primaryGroup = groups.find((g) => g.pivot.is_primary);
-
     return (
         <Card>
             <CardHeader>
@@ -85,40 +70,25 @@ export default function StudentGroupsCard({
                                 key={group.id}
                                 className="flex items-center justify-between gap-2 rounded-md border px-3 py-2"
                             >
-                                <div className="flex items-center gap-2 min-w-0">
+                                <div className="flex min-w-0 items-center gap-2">
                                     <span
-                                        className="h-3 w-3 shrink-0 rounded-full"
+                                        className="size-3 shrink-0 rounded-full"
                                         style={{ backgroundColor: group.color }}
                                     />
                                     <span className="truncate text-sm font-medium">{group.name}</span>
-                                    <span className="text-xs text-muted-foreground shrink-0">
+                                    <span className="shrink-0 text-xs text-muted-foreground">
                                         {formatCurrency(group.monthly_fee_amount)}/mese
                                     </span>
                                 </div>
-                                <div className="flex items-center gap-1 shrink-0">
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-7 w-7"
-                                        title={group.pivot.is_primary ? 'Rimuovi gruppo principale' : 'Imposta come principale'}
-                                        onClick={() =>
-                                            group.pivot.is_primary ? handleClearPrimary() : handleSetPrimary(group.id)
-                                        }
-                                    >
-                                        <Crown
-                                            className={`h-4 w-4 ${group.pivot.is_primary ? 'text-yellow-500' : 'text-muted-foreground'}`}
-                                        />
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-7 w-7"
-                                        title="Rimuovi dal gruppo"
-                                        onClick={() => handleDetach(group.id)}
-                                    >
-                                        <X className="h-4 w-4" />
-                                    </Button>
-                                </div>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="size-7"
+                                    title="Rimuovi dal gruppo"
+                                    onClick={() => handleDetach(group.id)}
+                                >
+                                    <X />
+                                </Button>
                             </li>
                         ))}
                     </ul>
@@ -135,7 +105,7 @@ export default function StudentGroupsCard({
                                     <SelectItem key={g.id} value={g.id}>
                                         <span className="flex items-center gap-2">
                                             <span
-                                                className="h-2.5 w-2.5 rounded-full shrink-0"
+                                                className="size-2.5 shrink-0 rounded-full"
                                                 style={{ backgroundColor: g.color }}
                                             />
                                             {g.name}
@@ -164,12 +134,7 @@ export default function StudentGroupsCard({
                                     {monthlyFeeOverride !== null && (
                                         <span className="ml-1 text-xs text-muted-foreground">(override)</span>
                                     )}
-                                    {monthlyFeeOverride === null && primaryGroup && (
-                                        <span className="ml-1 text-xs text-muted-foreground">
-                                            (da: {primaryGroup.name})
-                                        </span>
-                                    )}
-                                    {monthlyFeeOverride === null && !primaryGroup && groups.length > 0 && (
+                                    {monthlyFeeOverride === null && groups.length > 0 && (
                                         <span className="ml-1 text-xs text-muted-foreground">(minimo)</span>
                                     )}
                                 </>
