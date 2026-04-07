@@ -82,8 +82,11 @@ export default function RegisterMonthlyDialog({
 
     function handleMonthsChange(value: number) {
         const clamped = Math.min(12, Math.max(1, value));
-        setData('months', clamped);
-        setData('amount', computeSuggestedAmount(clamped, effectiveRate, balance));
+        setData({
+            ...data,
+            months: clamped,
+            amount: computeSuggestedAmount(clamped, effectiveRate, balance),
+        });
     }
 
     function handleSubmit(e: React.FormEvent) {

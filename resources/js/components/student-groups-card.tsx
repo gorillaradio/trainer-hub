@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTenant } from '@/hooks/use-tenant';
 import type { Group } from '@/types';
-import { router, useForm } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
 import { Crown, X } from 'lucide-react';
 import { useState } from 'react';
 
@@ -39,7 +39,6 @@ export default function StudentGroupsCard({
     const assignedIds = new Set(groups.map((g) => g.id));
     const unassignedGroups = availableGroups.filter((g) => !assignedIds.has(g.id));
 
-    const { data, setData, post, processing } = useForm<{ group_id: string }>({ group_id: '' });
     const [selectedGroupId, setSelectedGroupId] = useState<string>('');
 
     function handleAdd() {
@@ -147,7 +146,7 @@ export default function StudentGroupsCard({
                         </Select>
                         <Button
                             onClick={handleAdd}
-                            disabled={!selectedGroupId || processing}
+                            disabled={!selectedGroupId}
                             variant="outline"
                         >
                             Aggiungi

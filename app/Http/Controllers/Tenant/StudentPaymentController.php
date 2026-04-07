@@ -20,7 +20,7 @@ class StudentPaymentController extends Controller
     {
         $this->authorize('update', $student);
         $validated = $request->validated();
-        $this->monthlyFeeService->registerPayment($student, $validated['months'], $validated['amount']);
+        $this->monthlyFeeService->registerPayment($student, $validated['months'], $validated['amount'], $validated['notes'] ?? null);
 
         return redirect()->back()->with('success', 'Pagamento mensilità registrato.');
     }
@@ -29,7 +29,7 @@ class StudentPaymentController extends Controller
     {
         $this->authorize('update', $student);
         $validated = $request->validated();
-        $this->enrollmentFeeService->registerEnrollment($student, $validated['amount']);
+        $this->enrollmentFeeService->registerEnrollment($student, $validated['amount'], $validated['notes'] ?? null);
 
         return redirect()->back()->with('success', 'Pagamento iscrizione registrato.');
     }

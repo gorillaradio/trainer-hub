@@ -54,7 +54,7 @@ class MonthlyFeeService
     /**
      * Register a payment covering $months months, starting from oldest uncovered periods.
      */
-    public function registerPayment(Student $student, int $months, int $amount): Payment
+    public function registerPayment(Student $student, int $months, int $amount, ?string $notes = null): Payment
     {
         $effectiveRate = $this->feeCalculationService->getEffectiveRate($student);
 
@@ -70,6 +70,7 @@ class MonthlyFeeService
             'amount' => $amount,
             'payment_method' => PaymentMethod::Cash,
             'paid_at' => now(),
+            'notes' => $notes,
         ]);
 
         $periodsToCover = $this->getPeriodsToCover($student, $months);

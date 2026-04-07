@@ -16,7 +16,7 @@ class EnrollmentFeeService
      * If an active enrollment exists, starts from its expiry (early renewal).
      * Otherwise, starts from today.
      */
-    public function registerEnrollment(Student $student, int $amount): Payment
+    public function registerEnrollment(Student $student, int $amount, ?string $notes = null): Payment
     {
         // Get the duration from tenant settings, default 12 months
         $durationMonths = tenant()?->settings['enrollment_duration_months'] ?? 12;
@@ -38,6 +38,7 @@ class EnrollmentFeeService
             'amount' => $amount,
             'payment_method' => PaymentMethod::Cash,
             'paid_at' => now(),
+            'notes' => $notes,
         ]);
 
         // Create the enrollment fee
