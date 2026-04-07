@@ -157,7 +157,21 @@ class StudentController extends Controller
     {
         $this->authorize('update', $student);
 
-        $student->update(['status' => StudentStatus::Suspended]);
+        if ($student->current_cycle_started_at) {
+            $pastCycles = $student->past_cycles ?? [];
+            $pastCycles[] = [
+                'started_at' => $student->current_cycle_started_at->toDateString(),
+                'ended_at' => now()->toDateString(),
+                'reason' => 'suspended',
+            ];
+            $student->update([
+                'status' => StudentStatus::Suspended,
+                'current_cycle_started_at' => null,
+                'past_cycles' => $pastCycles,
+            ]);
+        } else {
+            $student->update(['status' => StudentStatus::Suspended]);
+        }
 
         return redirect()->route('tenant.students.show', [tenant('slug'), $student])
             ->with('success', 'Allievo sospeso.');

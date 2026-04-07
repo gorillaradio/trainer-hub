@@ -278,3 +278,45 @@ test('emergency contacts rispettano isolamento tenant', function () {
     tenancy()->end();
     tenancy()->initialize($this->tenant);
 });
+
+test('suspend archivia il ciclo corrente in past_cycles', function () {
+    $student = Student::factory()->create([
+        'status' => StudentStatus::Active,
+        'current_cycle_started_at' => '2026-01-16',
+    ]);
+
+    $response = $this->put("/app/{$this->tenant->slug}/students/{$student->id}/suspend");
+
+    $response->assertRedirect();
+    $student->refresh();
+    expect($student->status)->toBe(StudentStatus::Suspended);
+    expect($student->current_cycle_started_at)->toBeNull();
+    expect($student->past_cycles)->toHaveCount(1);
+    expect($student->past_cycles[0]['started_at'])->toBe('2026-01-16');
+    expect($student->past_cycles[0]['reason'])->toBe('suspended');
+});
+
+test('suspend senza ciclo attivo non aggiunge past_cycles', function () {
+    $student = Student::factory()->create([
+        'status' => StudentStatus::Active,
+        'current_cycle_started_at' => null,
+    ]);
+
+    $this->put("/app/{$this->tenant->slug}/students/{$student->id}/suspend");
+
+    $student->refresh();
+    expect($student->past_cycles)->toBeNull();
+});
+
+test('reactivate mantiene current_cycle_started_at null', function () {
+    $student = Student::factory()->create([
+        'status' => StudentStatus::Suspended,
+        'current_cycle_started_at' => null,
+    ]);
+
+    $this->put("/app/{$this->tenant->slug}/students/{$student->id}/reactivate");
+
+    $student->refresh();
+    expect($student->status)->toBe(StudentStatus::Active);
+    expect($student->current_cycle_started_at)->toBeNull();
+});
