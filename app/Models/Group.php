@@ -23,6 +23,7 @@ class Group extends Model
     public function students(): BelongsToMany
     {
         return $this->belongsToMany(Student::class, 'group_student')
+            ->using(GroupStudent::class)
             ->withPivot('is_primary')
             ->withTimestamps();
     }

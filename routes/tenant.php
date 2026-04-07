@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Tenant\DashboardController;
+use App\Http\Controllers\Tenant\GroupController;
 use App\Http\Controllers\Tenant\StudentController;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByPath;
@@ -20,4 +21,8 @@ Route::middleware(['web', 'auth', InitializeTenancyByPath::class, 'tenant.access
             ->name('tenant.students.archive');
         Route::put('students/{student}/reactivate', [StudentController::class, 'reactivate'])
             ->name('tenant.students.reactivate');
+
+        Route::resource('groups', GroupController::class)
+            ->except('show')
+            ->names('tenant.groups');
     });
