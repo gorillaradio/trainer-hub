@@ -28,7 +28,7 @@ test('index mostra la lista allievi', function () {
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
         ->component('Tenant/Student/Index')
-        ->has('students.data', 3)
+        ->has('students', 3)
     );
 });
 
@@ -40,7 +40,7 @@ test('index filtra per stato', function () {
 
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
-        ->has('students.data', 2)
+        ->has('students', 2)
     );
 });
 
@@ -52,7 +52,7 @@ test('index cerca per nome', function () {
 
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
-        ->has('students.data', 1)
+        ->has('students', 1)
     );
 });
 
