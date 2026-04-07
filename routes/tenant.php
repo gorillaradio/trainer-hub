@@ -4,6 +4,7 @@ use App\Http\Controllers\Tenant\DashboardController;
 use App\Http\Controllers\Tenant\GroupController;
 use App\Http\Controllers\Tenant\StudentController;
 use App\Http\Controllers\Tenant\StudentGroupController;
+use App\Http\Controllers\Tenant\StudentPaymentController;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByPath;
 
@@ -35,4 +36,9 @@ Route::middleware(['web', 'auth', InitializeTenancyByPath::class, 'tenant.access
             ->name('tenant.students.groups.detach');
         Route::put('students/{student}/groups/{group}/primary', [StudentGroupController::class, 'setPrimary'])
             ->name('tenant.students.groups.set-primary');
+
+        Route::post('students/{student}/payments/monthly', [StudentPaymentController::class, 'registerMonthly'])
+            ->name('tenant.students.payments.monthly');
+        Route::post('students/{student}/payments/enrollment', [StudentPaymentController::class, 'registerEnrollment'])
+            ->name('tenant.students.payments.enrollment');
     });

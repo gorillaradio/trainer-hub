@@ -8,6 +8,9 @@ use App\Http\Requests\Tenant\StoreStudentRequest;
 use App\Http\Requests\Tenant\UpdateStudentRequest;
 use App\Models\Group;
 use App\Models\Student;
+use App\Services\EnrollmentFeeService;
+use App\Services\FeeCalculationService;
+use App\Services\MonthlyFeeService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -99,7 +102,7 @@ class StudentController extends Controller
             ->with('success', 'Allievo aggiunto con successo.');
     }
 
-    public function show(Student $student)
+    public function show(Student $student, FeeCalculationService $feeCalculation, MonthlyFeeService $monthlyFeeService, EnrollmentFeeService $enrollmentFeeService)
     {
         $this->authorize('view', $student);
 
@@ -108,6 +111,17 @@ class StudentController extends Controller
         return Inertia::render('Tenant/Student/Show', [
             'student' => $student,
             'availableGroups' => Group::orderBy('name')->get(['id', 'name', 'color', 'monthly_fee_amount']),
+            'paymentData' => [
+                'effectiveRate' => $feeCalculation->getEffectiveRate($student),
+                'balance' => $feeCalculation->getBalance($student),
+                'uncoveredPeriods' => $monthlyFeeService->getUncoveredPeriods($student),
+                'latestEnrollment' => $enrollmentFeeService->getLatestEnrollment($student),
+                'enrollmentExpired' => $enrollmentFeeService->isEnrollmentExpired($student),
+                'payments' => $student->payments()
+                    ->with('monthlyFees', 'enrollmentFees')
+                    ->orderByDesc('paid_at')
+                    ->get(),
+            ],
         ]);
     }
 
