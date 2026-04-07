@@ -33,9 +33,6 @@ function centsToEuros(cents: number): string {
     return (cents / 100).toFixed(2);
 }
 
-function eurosToCents(euros: string): number {
-    return Math.round(parseFloat(euros) * 100);
-}
 
 function computeSuggestedAmount(months: number, effectiveRate: number | null, balance: number): string {
     if (effectiveRate === null) return '';
@@ -56,17 +53,11 @@ export default function RegisterMonthlyDialog({
     const tenant = useTenant();
     const prefix = `/app/${tenant.slug}`;
 
-    const { data, setData, post, transform, processing, errors, reset } = useForm<FormData>({
+    const { data, setData, post, processing, errors, reset } = useForm<FormData>({
         months: 1,
         amount: computeSuggestedAmount(1, effectiveRate, balance),
         notes: '',
     });
-
-    transform((values) => ({
-        months: values.months,
-        amount: eurosToCents(values.amount),
-        notes: values.notes,
-    }));
 
     useEffect(() => {
         if (open) {

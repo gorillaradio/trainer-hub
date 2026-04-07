@@ -32,9 +32,6 @@ function centsToEuros(cents: number): string {
     return (cents / 100).toFixed(2);
 }
 
-function eurosToCents(euros: string): number {
-    return Math.round(parseFloat(euros) * 100);
-}
 
 function formatDate(dateStr: string): string {
     return format(new Date(dateStr), 'dd/MM/yyyy', { locale: it });
@@ -56,15 +53,10 @@ export default function RegisterEnrollmentDialog({
 
     const isRenewal = isEnrollmentActive(latestEnrollment);
 
-    const { data, setData, post, transform, processing, errors, reset } = useForm<FormData>({
+    const { data, setData, post, processing, errors, reset } = useForm<FormData>({
         amount: latestEnrollment ? centsToEuros(latestEnrollment.expected_amount) : '',
         notes: '',
     });
-
-    transform((values) => ({
-        amount: eurosToCents(values.amount),
-        notes: values.notes,
-    }));
 
     useEffect(() => {
         if (open) {
