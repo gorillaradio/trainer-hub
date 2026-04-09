@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import TenantLayout from '@/layouts/tenant-layout';
-import { cn } from '@/lib/utils';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { statusLabel, statusVariant } from '@/lib/student-status';
 import type { Group, PaymentData, Student } from '@/types';
 import { useTenant } from '@/hooks/use-tenant';
@@ -13,7 +13,7 @@ import { Head, Link } from '@inertiajs/react';
 import { format, parse } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { ArrowLeft, Pencil } from 'lucide-react';
-import { useState, type ReactElement } from 'react';
+import type { ReactElement } from 'react';
 
 function formatDate(value: string | null): string | null {
     if (!value) return null;
@@ -41,10 +41,6 @@ function computeEffectiveRate(student: Student): number | null {
         return student.monthly_fee_override;
     }
     const groups = student.groups ?? [];
-    const primaryGroup = groups.find((g) => g.pivot.is_primary);
-    if (primaryGroup) {
-        return primaryGroup.monthly_fee_amount;
-    }
     if (groups.length > 0) {
         return Math.min(...groups.map((g) => g.monthly_fee_amount));
     }
@@ -55,7 +51,6 @@ export default function StudentsShow({ student, availableGroups, paymentData }: 
     const tenant = useTenant();
     const prefix = `/app/${tenant.slug}`;
     const effectiveRate = computeEffectiveRate(student);
-    const [tab, setTab] = useState<'personal' | 'payments'>('personal');
 
     return (
         <>
@@ -84,129 +79,101 @@ export default function StudentsShow({ student, availableGroups, paymentData }: 
                     }
                 />
 
-                <div className="mb-6 flex gap-1 rounded-lg bg-muted p-1">
-                    <button
-                        type="button"
-                        onClick={() => setTab('personal')}
-                        className={cn(
-                            'flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
-                            tab === 'personal'
-                                ? 'bg-background shadow-sm'
-                                : 'text-muted-foreground hover:text-foreground',
-                        )}
-                    >
-                        Dati personali
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => setTab('payments')}
-                        className={cn(
-                            'flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
-                            tab === 'payments'
-                                ? 'bg-background shadow-sm'
-                                : 'text-muted-foreground hover:text-foreground',
-                        )}
-                    >
-                        Pagamenti
-                    </button>
-                </div>
+                <Tabs defaultValue="personal">
+                    <TabsList className="mb-6 w-full">
+                        <TabsTrigger value="personal">Dati personali</TabsTrigger>
+                        <TabsTrigger value="payments">Pagamenti</TabsTrigger>
+                    </TabsList>
 
-                {tab === 'personal' && (
-                    <div className="flex flex-col gap-6">
-                        <Card>
-                            <CardHeader>
-                                <div className="flex items-center justify-between">
-                                    <CardTitle>Dati personali</CardTitle>
-                                    <Badge variant={statusVariant[student.status]}>
-                                        {statusLabel[student.status]}
-                                    </Badge>
-                                </div>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="grid gap-4 sm:grid-cols-2">
-                                    <DisplayField label="Nome" value={student.first_name} />
-                                    <DisplayField label="Cognome" value={student.last_name} />
-                                    <DisplayField label="Email" value={student.email} />
-                                    <DisplayField
-                                        label="Telefono"
-                                        value={
-                                            student.effective_phone
-                                                ? student.phone_contact_id
-                                                    ? `${student.effective_phone} (da contatto: ${student.emergency_contacts?.find(c => c.id === student.phone_contact_id)?.name ?? '—'})`
-                                                    : student.effective_phone
-                                                : null
-                                        }
-                                    />
-                                    <DisplayField label="Data di nascita" value={formatDate(student.date_of_birth)} />
-                                    <DisplayField label="Codice fiscale" value={student.fiscal_code} />
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        <StudentGroupsCard
-                            studentId={student.id}
-                            groups={student.groups ?? []}
-                            availableGroups={availableGroups}
-                            effectiveRate={effectiveRate}
-                            monthlyFeeOverride={student.monthly_fee_override}
-                        />
-
-                        {student.address && (
+                    <TabsContent value="personal">
+                        <div className="flex flex-col gap-6">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Indirizzo</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <DisplayField label="Indirizzo" value={student.address} />
-                                </CardContent>
-                            </Card>
-                        )}
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Contatti di emergenza</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                {student.emergency_contacts?.length > 0 ? (
-                                    <div className="flex flex-col gap-4">
-                                        {student.emergency_contacts.map((contact) => (
-                                            <div key={contact.id} className="grid gap-4 sm:grid-cols-2">
-                                                <DisplayField label="Nome contatto" value={contact.name} />
-                                                <DisplayField label="Telefono contatto" value={contact.phone} />
-                                            </div>
-                                        ))}
+                                    <div className="flex items-center justify-between">
+                                        <CardTitle>Dati personali</CardTitle>
+                                        <Badge variant={statusVariant[student.status]}>
+                                            {statusLabel[student.status]}
+                                        </Badge>
                                     </div>
-                                ) : (
-                                    <p className="text-sm text-muted-foreground">Nessun contatto di emergenza</p>
-                                )}
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Iscrizione</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <DisplayField label="Data iscrizione" value={formatDate(student.enrolled_at)} />
-                            </CardContent>
-                        </Card>
-
-                        {student.notes && (
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Note</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <p className="whitespace-pre-wrap">{student.notes}</p>
+                                    <div className="grid gap-4 sm:grid-cols-2">
+                                        <DisplayField label="Nome" value={student.first_name} />
+                                        <DisplayField label="Cognome" value={student.last_name} />
+                                        <DisplayField label="Email" value={student.email} />
+                                        <DisplayField
+                                            label="Telefono"
+                                            value={
+                                                student.effective_phone
+                                                    ? student.phone_contact_id
+                                                        ? `${student.effective_phone} (da contatto: ${student.emergency_contacts?.find(c => c.id === student.phone_contact_id)?.name ?? '—'})`
+                                                        : student.effective_phone
+                                                    : null
+                                            }
+                                        />
+                                        <DisplayField label="Data di nascita" value={formatDate(student.date_of_birth)} />
+                                        <DisplayField label="Codice fiscale" value={student.fiscal_code} />
+                                        <DisplayField label="Data iscrizione" value={formatDate(student.enrolled_at)} />
+                                    </div>
                                 </CardContent>
                             </Card>
-                        )}
-                    </div>
-                )}
 
-                {tab === 'payments' && (
-                    <StudentPaymentsTab studentId={student.id} paymentData={paymentData} />
-                )}
+                            <StudentGroupsCard
+                                studentId={student.id}
+                                groups={student.groups ?? []}
+                                availableGroups={availableGroups}
+                                effectiveRate={effectiveRate}
+                                monthlyFeeOverride={student.monthly_fee_override}
+                            />
+
+                            {student.address && (
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle>Indirizzo</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <DisplayField label="Indirizzo" value={student.address} />
+                                    </CardContent>
+                                </Card>
+                            )}
+
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Contatti di emergenza</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    {student.emergency_contacts?.length > 0 ? (
+                                        <div className="flex flex-col gap-4">
+                                            {student.emergency_contacts.map((contact) => (
+                                                <div key={contact.id} className="grid gap-4 sm:grid-cols-2">
+                                                    <DisplayField label="Nome contatto" value={contact.name} />
+                                                    <DisplayField label="Telefono contatto" value={contact.phone} />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-sm text-muted-foreground">Nessun contatto di emergenza</p>
+                                    )}
+                                </CardContent>
+                            </Card>
+
+                            {student.notes && (
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle>Note</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <p className="whitespace-pre-wrap">{student.notes}</p>
+                                    </CardContent>
+                                </Card>
+                            )}
+                        </div>
+                    </TabsContent>
+
+                    <TabsContent value="payments">
+                        <StudentPaymentsTab studentId={student.id} paymentData={paymentData} />
+                    </TabsContent>
+                </Tabs>
             </div>
         </>
     );

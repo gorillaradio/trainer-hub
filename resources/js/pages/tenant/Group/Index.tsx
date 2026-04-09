@@ -54,7 +54,7 @@ export default function GroupIndex({ groups }: Props) {
                             <Card
                                 key={group.id}
                                 className="cursor-pointer transition-shadow hover:shadow-md"
-                                onClick={() => router.visit(`${prefix}/groups/${group.id}/edit`)}
+                                onClick={() => router.visit(`${prefix}/groups/${group.id}`)}
                             >
                                 <CardContent className="flex flex-col gap-3 pt-5">
                                     <div className="flex items-center gap-3">

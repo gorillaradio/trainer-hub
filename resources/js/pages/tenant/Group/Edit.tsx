@@ -1,11 +1,10 @@
 import { GroupForm } from '@/components/group-form';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTenant } from '@/hooks/use-tenant';
 import TenantLayout from '@/layouts/tenant-layout';
 import type { Group } from '@/types';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { ArrowLeft, Trash2 } from 'lucide-react';
 import type { ReactElement } from 'react';
 
@@ -46,28 +45,6 @@ export default function GroupEdit({ group }: Props) {
                 />
 
                 <GroupForm group={group} submitLabel="Salva modifiche" />
-
-                {group.students && group.students.length > 0 && (
-                    <Card className="mt-6">
-                        <CardHeader>
-                            <CardTitle>Allievi nel gruppo</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <ul className="flex flex-col divide-y">
-                                {group.students.map((student) => (
-                                    <li key={student.id} className="py-2 first:pt-0 last:pb-0">
-                                        <Link
-                                            href={`${prefix}/students/${student.id}`}
-                                            className="text-sm hover:underline"
-                                        >
-                                            {student.last_name} {student.first_name}
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        </CardContent>
-                    </Card>
-                )}
             </div>
         </>
     );
