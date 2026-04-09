@@ -49,7 +49,3 @@ jobs:
               fi
             done
 
-            sudo chown -R deploy:www-data storage/
-            sudo chown -R deploy:www-data bootstrap/cache/
-            sudo chmod -R 775 storage/
-            sudo chmod -R 775 bootstrap/cache/
