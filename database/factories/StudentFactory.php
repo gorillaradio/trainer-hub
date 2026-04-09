@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\StudentStatus;
 use App\Models\Student;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -31,6 +32,6 @@ class StudentFactory extends Factory
 
     public function suspended(): static
     {
-        return $this->state(['status' => 'suspended']);
+        return $this->state(['status' => StudentStatus::Suspended]);
     }
 }
