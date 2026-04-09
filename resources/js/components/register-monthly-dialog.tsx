@@ -1,3 +1,6 @@
+import { useForm } from '@inertiajs/react';
+import { AlertTriangle } from 'lucide-react';
+import { useEffect } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -5,9 +8,6 @@ import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useTenant } from '@/hooks/use-tenant';
-import { useForm } from '@inertiajs/react';
-import { AlertTriangle } from 'lucide-react';
-import { useEffect } from 'react';
 
 type Props = {
     open: boolean;
@@ -48,7 +48,6 @@ export default function RegisterMonthlyDialog({
     effectiveRate,
     balance,
     enrollmentExpired,
-    uncoveredCount,
 }: Props) {
     const tenant = useTenant();
     const prefix = `/app/${tenant.slug}`;
