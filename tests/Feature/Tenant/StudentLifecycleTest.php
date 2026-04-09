@@ -102,3 +102,83 @@ test('suspended student has effective_status suspended regardless of enrollment'
     $student->refresh();
     expect($student->effective_status)->toBe('suspended');
 });
+
+test('enrollment payment transitions student from pending to active', function () {
+    $student = Student::factory()->create();
+    expect($student->effective_status)->toBe('pending');
+
+    $service = app(EnrollmentFeeService::class);
+    $service->registerEnrollment($student, 5000);
+
+    $student->refresh();
+    expect($student->effective_status)->toBe('active');
+});
+
+test('suspended student stays suspended even after enrollment payment', function () {
+    $student = Student::factory()->create();
+    $student->update(['status' => 'suspended']);
+
+    $service = app(EnrollmentFeeService::class);
+    $service->registerEnrollment($student, 5000);
+
+    $student->refresh();
+    expect($student->effective_status)->toBe('suspended');
+});
+
+test('reactivating suspended student with valid enrollment shows active', function () {
+    $student = Student::factory()->create();
+    $student->update(['status' => 'suspended']);
+
+    $service = app(EnrollmentFeeService::class);
+    $service->registerEnrollment($student, 5000);
+
+    $this->put("/app/{$this->tenant->slug}/students/{$student->id}/reactivate");
+
+    $student->refresh();
+    expect($student->effective_status)->toBe('active');
+});
+
+test('reactivating suspended student without enrollment shows pending', function () {
+    $student = Student::factory()->create();
+    $student->update(['status' => 'suspended']);
+
+    $this->put("/app/{$this->tenant->slug}/students/{$student->id}/reactivate");
+
+    $student->refresh();
+    expect($student->effective_status)->toBe('pending');
+});
+
+test('soft-deleted student is not visible in index', function () {
+    $student = Student::factory()->create();
+    $student->delete();
+
+    $response = $this->get("/app/{$this->tenant->slug}/students?status=all");
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page
+        ->has('students', 0)
+    );
+});
+
+test('tenant isolation: tenant A cannot see tenant B students', function () {
+    Student::factory()->create();
+
+    $otherUser = User::factory()->create();
+    $otherTenant = Tenant::factory()->create(['owner_id' => $otherUser->id]);
+
+    $response = $this->get("/app/{$otherTenant->slug}/students");
+
+    $response->assertForbidden();
+});
+
+test('store does not accept status field', function () {
+    $response = $this->post("/app/{$this->tenant->slug}/students", [
+        'first_name' => 'Marco',
+        'last_name' => 'Rossi',
+        'status' => 'active',
+    ]);
+
+    $response->assertRedirect();
+    $student = Student::where('first_name', 'Marco')->first();
+    expect($student->getRawOriginal('status'))->toBeNull();
+});
