@@ -134,10 +134,10 @@ export default function StudentsIndex({ students, filters, statuses, paymentInfo
     }
 
     function renderActionCell(student: Student) {
-        if (student.status !== 'active') {
+        if (student.effective_status !== 'active') {
             return (
-                <Badge variant={statusVariant[student.status]}>
-                    {statusLabel[student.status]}
+                <Badge variant={statusVariant[student.effective_status]}>
+                    {statusLabel[student.effective_status]}
                 </Badge>
             );
         }
@@ -235,7 +235,7 @@ export default function StudentsIndex({ students, filters, statuses, paymentInfo
                                         </TableCell>
                                         {showPayments && isActiveFilter && (
                                             <TableCell className="text-center">
-                                                {student.status === 'active'
+                                                {student.effective_status === 'active'
                                                     ? renderPaymentIndicator(student)
                                                     : null}
                                             </TableCell>
