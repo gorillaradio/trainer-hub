@@ -22,8 +22,6 @@ Route::middleware(['web', 'auth', InitializeTenancyByPath::class, 'tenant.access
 
         Route::put('students/{student}/suspend', [StudentController::class, 'suspend'])
             ->name('tenant.students.suspend');
-        Route::put('students/{student}/archive', [StudentController::class, 'archive'])
-            ->name('tenant.students.archive');
         Route::put('students/{student}/reactivate', [StudentController::class, 'reactivate'])
             ->name('tenant.students.reactivate');
 

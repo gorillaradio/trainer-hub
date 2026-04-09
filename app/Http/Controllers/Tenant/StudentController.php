@@ -16,14 +16,6 @@ use Inertia\Inertia;
 
 class StudentController extends Controller
 {
-    private function statusOptions(): array
-    {
-        return array_map(
-            fn (StudentStatus $s) => ['value' => $s->value, 'label' => $s->name],
-            StudentStatus::cases()
-        );
-    }
-
     public function index(Request $request)
     {
         $this->authorize('viewAny', Student::class);
@@ -39,13 +31,26 @@ class StudentController extends Controller
         }
 
         $status = $request->input('status', 'active');
+
         if ($status && $status !== 'all') {
-            $query->where('status', $status);
+            if ($status === 'suspended') {
+                $query->where('status', 'suspended');
+            } elseif ($status === 'active') {
+                $query->whereNull('status')
+                    ->whereHas('enrollmentFees', function ($q) {
+                        $q->where('expires_at', '>', now());
+                    });
+            } elseif ($status === 'pending') {
+                $query->whereNull('status')
+                    ->whereDoesntHave('enrollmentFees', function ($q) {
+                        $q->where('expires_at', '>', now());
+                    });
+            }
         }
 
         $sortField = $request->input('sort', 'last_name');
         $sortDirection = $request->input('direction', 'asc');
-        $allowedSorts = ['first_name', 'last_name', 'email', 'status', 'enrolled_at', 'created_at'];
+        $allowedSorts = ['first_name', 'last_name', 'email', 'enrolled_at', 'created_at'];
 
         if (in_array($sortField, $allowedSorts)) {
             $query->orderBy($sortField, $sortDirection === 'desc' ? 'desc' : 'asc');
@@ -78,7 +83,14 @@ class StudentController extends Controller
                 'direction' => $sortDirection,
                 'payments' => $request->boolean('payments'),
             ],
-            'statuses' => $this->statusOptions(),
+            'statuses' => array_map(
+                fn (StudentStatus $s) => ['value' => $s->value, 'label' => match ($s) {
+                    StudentStatus::Pending => 'In attesa',
+                    StudentStatus::Active => 'Attivo',
+                    StudentStatus::Suspended => 'Sospeso',
+                }],
+                StudentStatus::cases()
+            ),
             'paymentInfo' => $paymentInfo,
         ]);
     }
@@ -87,9 +99,7 @@ class StudentController extends Controller
     {
         $this->authorize('create', Student::class);
 
-        return Inertia::render('Tenant/Student/Create', [
-            'statuses' => $this->statusOptions(),
-        ]);
+        return Inertia::render('Tenant/Student/Create');
     }
 
     public function store(StoreStudentRequest $request)
@@ -152,7 +162,6 @@ class StudentController extends Controller
 
         return Inertia::render('Tenant/Student/Edit', [
             'student' => $student,
-            'statuses' => $this->statusOptions(),
         ]);
     }
 
@@ -190,6 +199,8 @@ class StudentController extends Controller
     {
         $this->authorize('update', $student);
 
+        $updates = ['status' => StudentStatus::Suspended];
+
         if ($student->current_cycle_started_at) {
             $pastCycles = $student->past_cycles ?? [];
             $pastCycles[] = [
@@ -197,34 +208,21 @@ class StudentController extends Controller
                 'ended_at' => now()->toDateString(),
                 'reason' => 'suspended',
             ];
-            $student->update([
-                'status' => StudentStatus::Suspended,
-                'current_cycle_started_at' => null,
-                'past_cycles' => $pastCycles,
-            ]);
-        } else {
-            $student->update(['status' => StudentStatus::Suspended]);
+            $updates['current_cycle_started_at'] = null;
+            $updates['past_cycles'] = $pastCycles;
         }
+
+        $student->update($updates);
 
         return redirect()->route('tenant.students.show', [tenant('slug'), $student])
             ->with('success', 'Allievo sospeso.');
-    }
-
-    public function archive(Student $student)
-    {
-        $this->authorize('update', $student);
-
-        $student->update(['status' => StudentStatus::Inactive]);
-
-        return redirect()->route('tenant.students.index', tenant('slug'))
-            ->with('success', 'Allievo archiviato.');
     }
 
     public function reactivate(Student $student)
     {
         $this->authorize('update', $student);
 
-        $student->update(['status' => StudentStatus::Active]);
+        $student->update(['status' => null]);
 
         return redirect()->route('tenant.students.show', [tenant('slug'), $student])
             ->with('success', 'Allievo riattivato.');
@@ -234,7 +232,10 @@ class StudentController extends Controller
     {
         $this->authorize('viewAny', Student::class);
 
-        $query = Student::where('status', 'active')
+        $query = Student::whereNull('status')
+            ->whereHas('enrollmentFees', function ($q) {
+                $q->where('expires_at', '>', now());
+            })
             ->select('id', 'first_name', 'last_name');
 
         if ($search = $request->input('q')) {

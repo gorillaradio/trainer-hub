@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Enums\StudentStatus;
 use App\Models\Student;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -22,7 +21,7 @@ class StudentFactory extends Factory
             'fiscal_code' => strtoupper(fake()->bothify('??????##?##?###?')),
             'address' => fake()->address(),
             'notes' => null,
-            'status' => StudentStatus::Active,
+            'status' => null,
             'enrolled_at' => now(),
             'monthly_fee_override' => null,
             'current_cycle_started_at' => null,
@@ -30,13 +29,8 @@ class StudentFactory extends Factory
         ];
     }
 
-    public function inactive(): static
-    {
-        return $this->state(['status' => StudentStatus::Inactive]);
-    }
-
     public function suspended(): static
     {
-        return $this->state(['status' => StudentStatus::Suspended]);
+        return $this->state(['status' => 'suspended']);
     }
 }
