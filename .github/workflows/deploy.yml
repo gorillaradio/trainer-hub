@@ -1,0 +1,55 @@
+name: Deploy Hyoshi
+
+on:
+  push:
+    branches: [staging]
+  workflow_dispatch:
+
+jobs:
+  deploy-staging:
+    if: github.ref_name == 'staging'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            set -e
+            cd /var/www/hyoshi-staging
+            git remote set-url origin git@github-hyoshi:gorillaradio/hyoshi.git
+            rm -rf public/storage
+            git pull origin staging
+            composer install --no-dev --optimize-autoloader --no-interaction
+            php artisan migrate --force
+            php artisan optimize:clear
+            php artisan storage:link
+
+            npm ci
+            echo "Starting build with retry..."
+
+            for i in 1 2 3; do
+              echo "=== Build attempt $i of 3 ==="
+              if npm run build; then
+                echo "Build successful on attempt $i"
+                break
+              else
+                echo "Build failed on attempt $i"
+                if [ $i -eq 3 ]; then
+                  echo "All 3 build attempts failed"
+                  exit 1
+                fi
+                echo "Waiting 60 seconds before retry..."
+                sleep 60
+              fi
+            done
+
+            sudo chown -R deploy:www-data storage/
+            sudo chown -R deploy:www-data bootstrap/cache/
+            sudo chmod -R 775 storage/
+            sudo chmod -R 775 bootstrap/cache/
