@@ -90,7 +90,7 @@ test('student with expired enrollment has effective_status pending', function ()
 
 test('suspended student has effective_status suspended regardless of enrollment', function () {
     $student = Student::factory()->create();
-    $student->forceFill(['status' => 'suspended'])->save();
+    $student->update(['status' => 'suspended']);
     $payment = Payment::factory()->create(['student_id' => $student->id]);
     EnrollmentFee::factory()->create([
         'student_id' => $student->id,

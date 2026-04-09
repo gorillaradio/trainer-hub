@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\StudentStatus;
+use App\Services\EnrollmentFeeService;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,7 +12,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Services\EnrollmentFeeService;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 class Student extends Model
@@ -22,13 +22,14 @@ class Student extends Model
         'first_name', 'last_name', 'email', 'phone',
         'date_of_birth', 'fiscal_code', 'address',
         'phone_contact_id',
-        'notes', 'enrolled_at',
+        'notes', 'status', 'enrolled_at',
         'monthly_fee_override', 'current_cycle_started_at', 'past_cycles',
     ];
 
     protected $casts = [
         'date_of_birth' => 'date:Y-m-d',
         'enrolled_at' => 'date:Y-m-d',
+        'status' => StudentStatus::class,
         'current_cycle_started_at' => 'date:Y-m-d',
         'monthly_fee_override' => 'integer',
         'past_cycles' => 'array',
@@ -54,7 +55,7 @@ class Student extends Model
     protected function effectiveStatus(): Attribute
     {
         return Attribute::get(function (): string {
-            if ($this->status === 'suspended') {
+            if ($this->status === StudentStatus::Suspended) {
                 return StudentStatus::Suspended->value;
             }
 
