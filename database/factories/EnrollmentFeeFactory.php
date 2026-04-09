@@ -17,7 +17,7 @@ class EnrollmentFeeFactory extends Factory
         return [
             'student_id' => Student::factory(),
             'payment_id' => Payment::factory(),
-            'expected_amount' => fake()->randomInt(3000, 8000),
+            'expected_amount' => fake()->numberBetween(3000, 8000),
             'starts_at' => now(),
             'expires_at' => now()->addYear(),
             'notes' => null,

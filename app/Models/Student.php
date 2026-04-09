@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Services\EnrollmentFeeService;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 class Student extends Model
@@ -21,20 +22,19 @@ class Student extends Model
         'first_name', 'last_name', 'email', 'phone',
         'date_of_birth', 'fiscal_code', 'address',
         'phone_contact_id',
-        'notes', 'status', 'enrolled_at',
+        'notes', 'enrolled_at',
         'monthly_fee_override', 'current_cycle_started_at', 'past_cycles',
     ];
 
     protected $casts = [
         'date_of_birth' => 'date:Y-m-d',
         'enrolled_at' => 'date:Y-m-d',
-        'status' => StudentStatus::class,
         'current_cycle_started_at' => 'date:Y-m-d',
         'monthly_fee_override' => 'integer',
         'past_cycles' => 'array',
     ];
 
-    protected $appends = ['effective_phone'];
+    protected $appends = ['effective_phone', 'effective_status'];
 
     protected function effectivePhone(): Attribute
     {
@@ -48,6 +48,22 @@ class Student extends Model
             }
 
             return $this->phone;
+        });
+    }
+
+    protected function effectiveStatus(): Attribute
+    {
+        return Attribute::get(function (): string {
+            if ($this->status === 'suspended') {
+                return StudentStatus::Suspended->value;
+            }
+
+            $enrollmentService = app(EnrollmentFeeService::class);
+            if ($enrollmentService->hasValidEnrollment($this)) {
+                return StudentStatus::Active->value;
+            }
+
+            return StudentStatus::Pending->value;
         });
     }
 

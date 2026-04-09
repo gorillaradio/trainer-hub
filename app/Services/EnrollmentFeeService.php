@@ -71,6 +71,20 @@ class EnrollmentFeeService
     }
 
     /**
+     * Check if a student has a currently valid enrollment.
+     */
+    public function hasValidEnrollment(Student $student): bool
+    {
+        $latest = $this->getLatestEnrollment($student);
+
+        if ($latest === null) {
+            return false;
+        }
+
+        return $latest->expires_at->isFuture();
+    }
+
+    /**
      * Get the latest enrollment fee for a student.
      */
     public function getLatestEnrollment(Student $student): ?EnrollmentFee
