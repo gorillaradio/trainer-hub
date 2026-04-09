@@ -1,7 +1,9 @@
 <?php
 
 use App\Enums\StudentStatus;
+use App\Models\EnrollmentFee;
 use App\Models\Group;
+use App\Models\Payment;
 use App\Models\Student;
 use App\Models\Tenant;
 use App\Models\User;
@@ -97,7 +99,7 @@ test('index with payments=1 includes paymentInfo', function () {
     ]);
     $student->groups()->attach($group->id, ['is_primary' => true]);
 
-    $response = $this->get("/app/{$this->tenant->slug}/students?payments=1");
+    $response = $this->get("/app/{$this->tenant->slug}/students?status=all&payments=1");
 
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
@@ -131,8 +133,22 @@ test('index filters include payments flag', function () {
 // ─── index default status filter ────────────────────────────────────────────
 
 test('index defaults to status=active filter', function () {
-    Student::factory()->count(2)->create(['status' => StudentStatus::Active]);
-    Student::factory()->inactive()->create();
+    // 2 students with valid enrollment → effective_status = active
+    $activeStudents = Student::factory()->count(2)->create();
+    foreach ($activeStudents as $student) {
+        $payment = Payment::factory()->create(['student_id' => $student->id]);
+        EnrollmentFee::factory()->create([
+            'student_id' => $student->id,
+            'payment_id' => $payment->id,
+            'starts_at' => now()->subMonth(),
+            'expires_at' => now()->addMonths(11),
+        ]);
+    }
+
+    // 1 pending student (no enrollment)
+    Student::factory()->create();
+
+    // 1 suspended student
     Student::factory()->suspended()->create();
 
     $response = $this->get("/app/{$this->tenant->slug}/students");
@@ -145,8 +161,22 @@ test('index defaults to status=active filter', function () {
 });
 
 test('index with status=all shows all students', function () {
-    Student::factory()->count(2)->create(['status' => StudentStatus::Active]);
-    Student::factory()->inactive()->create();
+    // 2 students with valid enrollment
+    $activeStudents = Student::factory()->count(2)->create();
+    foreach ($activeStudents as $student) {
+        $payment = Payment::factory()->create(['student_id' => $student->id]);
+        EnrollmentFee::factory()->create([
+            'student_id' => $student->id,
+            'payment_id' => $payment->id,
+            'starts_at' => now()->subMonth(),
+            'expires_at' => now()->addMonths(11),
+        ]);
+    }
+
+    // 1 pending student (no enrollment)
+    Student::factory()->create();
+
+    // 1 suspended student
     Student::factory()->suspended()->create();
 
     $response = $this->get("/app/{$this->tenant->slug}/students?status=all");
@@ -161,7 +191,7 @@ test('index with status=all shows all students', function () {
 test('index paymentInfo has_rate is false when student has no groups', function () {
     $student = Student::factory()->create();
 
-    $response = $this->get("/app/{$this->tenant->slug}/students?payments=1");
+    $response = $this->get("/app/{$this->tenant->slug}/students?status=all&payments=1");
 
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
