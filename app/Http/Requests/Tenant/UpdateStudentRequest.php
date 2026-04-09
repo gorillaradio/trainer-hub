@@ -28,11 +28,23 @@ class UpdateStudentRequest extends FormRequest
             'date_of_birth' => ['nullable', 'date', 'before:today'],
             'fiscal_code' => ['nullable', 'string', 'max:16'],
             'address' => ['nullable', 'string', 'max:500'],
-            'emergency_contact_name' => ['nullable', 'string', 'max:255'],
-            'emergency_contact_phone' => ['nullable', 'string', 'max:50'],
+            'emergency_contacts' => ['nullable', 'array', 'max:5'],
+            'emergency_contacts.*.name' => ['required', 'string', 'max:255'],
+            'emergency_contacts.*.phone' => ['required', 'string', 'max:50'],
+            'phone_contact_index' => ['nullable', 'integer'],
             'notes' => ['nullable', 'string', 'max:5000'],
             'status' => ['sometimes', Rule::enum(StudentStatus::class)],
             'enrolled_at' => ['nullable', 'date'],
+            'monthly_fee_override' => ['nullable', 'numeric', 'min:0'],
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('monthly_fee_override') && $this->monthly_fee_override !== null && $this->monthly_fee_override !== '') {
+            $this->merge([
+                'monthly_fee_override' => (int) round($this->monthly_fee_override * 100),
+            ]);
+        }
     }
 }

@@ -14,6 +14,12 @@ export type Auth = {
     user: User;
 };
 
+export type SharedTenant = {
+    id: string;
+    name: string;
+    slug: string;
+};
+
 export type TwoFactorSetupData = {
     svg: string;
     url: string;

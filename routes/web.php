@@ -4,16 +4,21 @@ use App\Http\Controllers\Central\OnboardingController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
-Route::inertia('/', 'welcome', [
+Route::inertia('/', 'Welcome', [
     'canRegister' => Features::enabled(Features::registration()),
 ])->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
         $user = auth()->user();
+        $tenant = $user->currentTenant ?? $user->tenants()->first();
 
-        if ($user->current_tenant_id && $user->currentTenant) {
-            return redirect()->route('tenant.dashboard', $user->currentTenant->slug);
+        if ($tenant) {
+            if ($user->current_tenant_id !== $tenant->id) {
+                $user->update(['current_tenant_id' => $tenant->id]);
+            }
+
+            return redirect()->route('tenant.dashboard', $tenant->slug);
         }
 
         return redirect()->route('onboarding.create');

@@ -1,10 +1,11 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { useCurrentUrl } from '@/hooks/use-current-url';
+import { useTenant } from '@/hooks/use-tenant';
 import { cn } from '@/lib/utils';
 import { getTenantNavItems } from '@/lib/tenant-nav';
 
 export function TenantBottomNav() {
-    const { tenant } = usePage().props as { tenant: { id: string; name: string; slug: string } };
+    const tenant = useTenant();
     const { isCurrentOrParentUrl } = useCurrentUrl();
     const items = getTenantNavItems(tenant.slug);
 
@@ -15,7 +16,7 @@ export function TenantBottomNav() {
                     const active = isCurrentOrParentUrl(item.href);
                     return (
                         <Link
-                            key={item.href}
+                            key={item.href as string}
                             href={item.href}
                             className={cn(
                                 'flex flex-1 flex-col items-center justify-center gap-1 py-2 text-xs transition-colors',

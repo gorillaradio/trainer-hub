@@ -27,7 +27,10 @@
 - `app/Models/Concerns/` — trait condivisi (BelongsToTenant, ecc.)
 - `app/Services/` — business logic, mai nei controller
 - `app/Enums/` — PHP 8.1 backed enums per status e tipi
-- `resources/js/pages/` — pagine Inertia (struttura dettata dallo starter kit)
+- `resources/js/pages/` — pagine Inertia
+  - Directory: PascalCase singolare, come il modello (`Tenant/Student/`, `Central/Onboarding/`)
+  - File: PascalCase (`Index.tsx`, `Create.tsx`, `Show.tsx`, `Edit.tsx`)
+  - Pagine centrali in `Central/`, pagine tenant in `Tenant/`
 - `resources/js/components/` — componenti riutilizzabili
 - `resources/js/layouts/` — layout condivisi
 
@@ -46,9 +49,22 @@
 - Componenti shadcn/ui come base, personalizzati solo se necessario
 - Inertia `useForm` per tutti i form
 - Props tipizzate con interface TypeScript
-- Hook `useTenantRoute()` per generare URL tenant-aware
+- Hook `useTenant()` per accedere al tenant corrente nei componenti tenant-scoped
 - Layout assegnato con persistent layout pattern di Inertia
 - Mobile-first: il trainer usa spesso il telefono
+
+## Qualità codice
+
+- MAI usare hack, workaround o scorciatoie per zittire il compilatore
+- MAI `!` (non-null assertion), MAI `as` (unsafe cast), MAI `any`
+- Se TypeScript si lamenta, risolvere alla radice con tipi corretti, hook custom o guard
+- MAI percorsi relativi (`../`, `../../`) per navigazione — usare path assoluti o risolti dal layout
+- Seguire sempre le best practices di React, TypeScript, Inertia, Tailwind e shadcn
+
+## Review Frontend
+
+- **Dopo ogni blocco di lavoro UI**, lancia il code-reviewer agent (`superpowers:code-reviewer`) usando la checklist nella skill `frontend-review`.
+- Invoca la skill `frontend-review` PRIMA di scrivere codice UI per avere le regole fresche in contesto.
 
 ## Convenzioni Naming
 
@@ -57,6 +73,7 @@
 - Colonne: snake_case (first_name, paid_at)
 - Route names: dot notation (tenant.students.index)
 - Componenti React: PascalCase (StudentList.tsx)
+- Pagine Inertia: directory PascalCase singolare + file PascalCase (`Tenant/Student/Index.tsx`)
 - Enums: PascalCase con valori snake_case
 
 ## Sicurezza

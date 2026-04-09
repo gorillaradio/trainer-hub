@@ -1,4 +1,4 @@
-import { CreditCard, FileText, LayoutGrid, Users } from 'lucide-react';
+import { FileText, Layers, LayoutGrid, Users } from 'lucide-react';
 import type { NavItem } from '@/types';
 
 export function getTenantNavItems(tenantSlug: string): NavItem[] {
@@ -7,7 +7,7 @@ export function getTenantNavItems(tenantSlug: string): NavItem[] {
     return [
         { title: 'Dashboard', href: `${prefix}/dashboard`, icon: LayoutGrid },
         { title: 'Allievi', href: `${prefix}/students`, icon: Users },
-        { title: 'Pagamenti', href: `${prefix}/payments`, icon: CreditCard },
+        { title: 'Gruppi', href: `${prefix}/groups`, icon: Layers },
         { title: 'Documenti', href: `${prefix}/documents`, icon: FileText },
     ];
 }

@@ -1,3 +1,9 @@
+export type EmergencyContact = {
+    id: string;
+    name: string;
+    phone: string;
+};
+
 export type Student = {
     id: string;
     first_name: string;
@@ -7,8 +13,16 @@ export type Student = {
     date_of_birth: string | null;
     fiscal_code: string | null;
     address: string | null;
-    emergency_contact_name: string | null;
-    emergency_contact_phone: string | null;
+    emergency_contacts: EmergencyContact[];
+    phone_contact_id: string | null;
+    effective_phone: string | null;
+    groups?: Array<{
+        id: string;
+        name: string;
+        color: string;
+        monthly_fee_amount: number;
+    }>;
+    monthly_fee_override: number | null;
     notes: string | null;
     status: 'active' | 'inactive' | 'suspended';
     enrolled_at: string | null;
@@ -26,6 +40,12 @@ export type StudentFilters = {
     status: string;
     sort: string;
     direction: 'asc' | 'desc';
+    payments: boolean;
+};
+
+export type StudentPaymentInfo = {
+    uncovered_count: number;
+    has_rate: boolean;
 };
 
 export type PaginatedData<T> = {

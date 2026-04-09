@@ -1,0 +1,183 @@
+<h2>Modello Dati — Pagamenti & Gruppi</h2>
+<p class="subtitle">Piano A: gruppi base + pagamenti. Le colonne evidenziate in blu sono nuove o modificate.</p>
+
+<div class="section">
+  <h3>groups (nuova tabella)</h3>
+  <div class="mockup">
+    <div class="mockup-header">Tabella: groups</div>
+    <div class="mockup-body">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <tr style="border-bottom:2px solid #444;text-align:left;">
+          <th style="padding:8px;">Colonna</th>
+          <th style="padding:8px;">Tipo</th>
+          <th style="padding:8px;">Note</th>
+        </tr>
+        <tr style="border-bottom:1px solid #333;">
+          <td style="padding:8px;">id</td><td style="padding:8px;">uuid</td><td style="padding:8px;">PK</td>
+        </tr>
+        <tr style="border-bottom:1px solid #333;">
+          <td style="padding:8px;">tenant_id</td><td style="padding:8px;">string</td><td style="padding:8px;">FK → tenants</td>
+        </tr>
+        <tr style="border-bottom:1px solid #333;">
+          <td style="padding:8px;">name</td><td style="padding:8px;">string</td><td style="padding:8px;">es. "Under 16", "Adulti"</td>
+        </tr>
+        <tr style="border-bottom:1px solid #333;">
+          <td style="padding:8px;">default_monthly_fee</td><td style="padding:8px;">integer</td><td style="padding:8px;">centesimi (5000 = €50)</td>
+        </tr>
+        <tr style="border-bottom:1px solid #333;">
+          <td style="padding:8px;">default_enrollment_fee</td><td style="padding:8px;">integer</td><td style="padding:8px;">centesimi</td>
+        </tr>
+        <tr style="border-bottom:1px solid #333;">
+          <td style="padding:8px;">timestamps</td><td style="padding:8px;"></td><td style="padding:8px;"></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>group_student (pivot, nuova)</h3>
+  <div class="mockup">
+    <div class="mockup-header">Tabella: group_student</div>
+    <div class="mockup-body">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <tr style="border-bottom:2px solid #444;text-align:left;">
+          <th style="padding:8px;">Colonna</th>
+          <th style="padding:8px;">Tipo</th>
+          <th style="padding:8px;">Note</th>
+        </tr>
+        <tr style="border-bottom:1px solid #333;">
+          <td style="padding:8px;">group_id</td><td style="padding:8px;">uuid</td><td style="padding:8px;">FK → groups</td>
+        </tr>
+        <tr style="border-bottom:1px solid #333;">
+          <td style="padding:8px;">student_id</td><td style="padding:8px;">uuid</td><td style="padding:8px;">FK → students</td>
+        </tr>
+        <tr style="border-bottom:1px solid #333;">
+          <td style="padding:8px;" colspan="3"><em>Unique constraint su (group_id, student_id)</em></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>students (colonne aggiunte)</h3>
+  <div class="mockup">
+    <div class="mockup-header">Modifiche a: students</div>
+    <div class="mockup-body">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <tr style="border-bottom:2px solid #444;text-align:left;">
+          <th style="padding:8px;">Nuova colonna</th>
+          <th style="padding:8px;">Tipo</th>
+          <th style="padding:8px;">Note</th>
+        </tr>
+        <tr style="border-bottom:1px solid #333;background:rgba(59,130,246,0.1);">
+          <td style="padding:8px;">monthly_fee_override</td><td style="padding:8px;">integer, null</td><td style="padding:8px;">Se set, sovrascrive la tariffa gruppo</td>
+        </tr>
+        <tr style="border-bottom:1px solid #333;background:rgba(59,130,246,0.1);">
+          <td style="padding:8px;">enrollment_fee_override</td><td style="padding:8px;">integer, null</td><td style="padding:8px;">Se set, sovrascrive la quota gruppo</td>
+        </tr>
+        <tr style="border-bottom:1px solid #333;background:rgba(59,130,246,0.1);">
+          <td style="padding:8px;">current_cycle_started_at</td><td style="padding:8px;">date, null</td><td style="padding:8px;">Inizio ciclo mensilità corrente</td>
+        </tr>
+        <tr style="border-bottom:1px solid #333;background:rgba(59,130,246,0.1);">
+          <td style="padding:8px;">past_cycles</td><td style="padding:8px;">json, null</td><td style="padding:8px;">Storico cicli precedenti</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>enrollment_fees (modifiche)</h3>
+  <div class="mockup">
+    <div class="mockup-header">Tabella: enrollment_fees — modifiche</div>
+    <div class="mockup-body">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <tr style="border-bottom:2px solid #444;text-align:left;">
+          <th style="padding:8px;">Colonna</th>
+          <th style="padding:8px;">Tipo</th>
+          <th style="padding:8px;">Stato</th>
+        </tr>
+        <tr style="border-bottom:1px solid #333;text-decoration:line-through;opacity:0.5;">
+          <td style="padding:8px;">academic_year</td><td style="padding:8px;">string</td><td style="padding:8px;">❌ Rimuovere</td>
+        </tr>
+        <tr style="border-bottom:1px solid #333;background:rgba(59,130,246,0.1);">
+          <td style="padding:8px;">expires_at</td><td style="padding:8px;">date</td><td style="padding:8px;">✅ Aggiungere — scadenza (default enrolled_at + 12 mesi)</td>
+        </tr>
+        <tr style="border-bottom:1px solid #333;">
+          <td style="padding:8px;">student_id</td><td style="padding:8px;">uuid</td><td style="padding:8px;">invariato</td>
+        </tr>
+        <tr style="border-bottom:1px solid #333;">
+          <td style="padding:8px;">amount</td><td style="padding:8px;">integer</td><td style="padding:8px;">invariato (centesimi)</td>
+        </tr>
+        <tr style="border-bottom:1px solid #333;">
+          <td style="padding:8px;">paid_at</td><td style="padding:8px;">datetime</td><td style="padding:8px;">invariato</td>
+        </tr>
+        <tr style="border-bottom:1px solid #333;">
+          <td style="padding:8px;">payment_method</td><td style="padding:8px;">enum</td><td style="padding:8px;">invariato</td>
+        </tr>
+        <tr style="border-bottom:1px solid #333;">
+          <td style="padding:8px;">notes</td><td style="padding:8px;">text</td><td style="padding:8px;">invariato</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>monthly_fees (modifiche)</h3>
+  <div class="mockup">
+    <div class="mockup-header">Tabella: monthly_fees — modifiche</div>
+    <div class="mockup-body">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <tr style="border-bottom:2px solid #444;text-align:left;">
+          <th style="padding:8px;">Colonna</th>
+          <th style="padding:8px;">Tipo</th>
+          <th style="padding:8px;">Stato</th>
+        </tr>
+        <tr style="border-bottom:1px solid #333;text-decoration:line-through;opacity:0.5;">
+          <td style="padding:8px;">period</td><td style="padding:8px;">string</td><td style="padding:8px;">❌ Rimuovere</td>
+        </tr>
+        <tr style="border-bottom:1px solid #333;text-decoration:line-through;opacity:0.5;">
+          <td style="padding:8px;">due_date</td><td style="padding:8px;">date</td><td style="padding:8px;">❌ Rimuovere</td>
+        </tr>
+        <tr style="border-bottom:1px solid #333;">
+          <td style="padding:8px;">student_id</td><td style="padding:8px;">uuid</td><td style="padding:8px;">invariato</td>
+        </tr>
+        <tr style="border-bottom:1px solid #333;">
+          <td style="padding:8px;">amount</td><td style="padding:8px;">integer</td><td style="padding:8px;">invariato (centesimi)</td>
+        </tr>
+        <tr style="border-bottom:1px solid #333;">
+          <td style="padding:8px;">paid_at</td><td style="padding:8px;">datetime</td><td style="padding:8px;">invariato</td>
+        </tr>
+        <tr style="border-bottom:1px solid #333;">
+          <td style="padding:8px;">payment_method</td><td style="padding:8px;">enum</td><td style="padding:8px;">invariato</td>
+        </tr>
+        <tr style="border-bottom:1px solid #333;">
+          <td style="padding:8px;">notes</td><td style="padding:8px;">text</td><td style="padding:8px;">invariato</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Logica calcolo tariffa</h3>
+  <div class="mockup">
+    <div class="mockup-body" style="padding:20px;font-size:14px;line-height:1.8;">
+      <strong>Tariffa mensile effettiva:</strong><br>
+      <code>monthly_fee_override ?? min(gruppi.default_monthly_fee)</code><br><br>
+      <strong>Quota iscrizione effettiva:</strong><br>
+      <code>enrollment_fee_override ?? min(gruppi.default_enrollment_fee)</code><br><br>
+      <strong>Stato mensilità:</strong><br>
+      <code>mesi_trascorsi = months_diff(current_cycle_started_at, oggi)</code><br>
+      <code>pagamenti_ciclo = count(monthly_fees dove paid_at >= current_cycle_started_at)</code><br>
+      <code>in_regola = pagamenti_ciclo >= mesi_trascorsi</code><br>
+      <code>Se status = suspended → nessun pagamento atteso</code><br><br>
+      <strong>Stato iscrizione:</strong><br>
+      <code>ultimo = enrollment_fees.latest()</code><br>
+      <code>valida = ultimo.expires_at > oggi</code>
+    </div>
+  </div>
+</div>

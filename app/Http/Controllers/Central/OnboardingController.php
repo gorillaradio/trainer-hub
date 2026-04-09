@@ -12,15 +12,33 @@ class OnboardingController extends Controller
 {
     public function create()
     {
-        if (auth()->user()->current_tenant_id) {
-            return redirect()->route('tenant.dashboard', auth()->user()->currentTenant->slug);
+        $user = auth()->user();
+        $tenant = $user->currentTenant ?? $user->tenants()->first();
+
+        if ($tenant) {
+            if ($user->current_tenant_id !== $tenant->id) {
+                $user->update(['current_tenant_id' => $tenant->id]);
+            }
+
+            return redirect()->route('tenant.dashboard', $tenant->slug);
         }
 
-        return Inertia::render('central/onboarding/create');
+        return Inertia::render('Central/Onboarding/Create');
     }
 
     public function store(Request $request)
     {
+        $user = auth()->user();
+        $tenant = $user->currentTenant ?? $user->tenants()->first();
+
+        if ($tenant) {
+            if ($user->current_tenant_id !== $tenant->id) {
+                $user->update(['current_tenant_id' => $tenant->id]);
+            }
+
+            return redirect()->route('tenant.dashboard', $tenant->slug);
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
         ]);
