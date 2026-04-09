@@ -2,6 +2,8 @@
 
 use App\Enums\StudentStatus;
 use App\Models\EmergencyContact;
+use App\Models\EnrollmentFee;
+use App\Models\Payment;
 use App\Models\Student;
 use App\Models\Tenant;
 use App\Models\User;
@@ -23,7 +25,7 @@ afterEach(function () {
 test('index mostra la lista allievi', function () {
     Student::factory()->count(3)->create();
 
-    $response = $this->get("/app/{$this->tenant->slug}/students");
+    $response = $this->get("/app/{$this->tenant->slug}/students?status=all");
 
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
@@ -33,8 +35,23 @@ test('index mostra la lista allievi', function () {
 });
 
 test('index filtra per stato', function () {
-    Student::factory()->count(2)->create(['status' => StudentStatus::Active]);
-    Student::factory()->inactive()->create();
+    // 2 students with valid enrollment → effective_status = active
+    $activeStudents = Student::factory()->count(2)->create();
+    foreach ($activeStudents as $student) {
+        $payment = Payment::factory()->create(['student_id' => $student->id]);
+        EnrollmentFee::factory()->create([
+            'student_id' => $student->id,
+            'payment_id' => $payment->id,
+            'starts_at' => now()->subMonth(),
+            'expires_at' => now()->addMonths(11),
+        ]);
+    }
+
+    // 1 student without enrollment → effective_status = pending
+    Student::factory()->create();
+
+    // 1 suspended student
+    Student::factory()->suspended()->create();
 
     $response = $this->get("/app/{$this->tenant->slug}/students?status=active");
 
@@ -48,7 +65,7 @@ test('index cerca per nome', function () {
     Student::factory()->create(['first_name' => 'Marco', 'last_name' => 'Rossi']);
     Student::factory()->create(['first_name' => 'Luca', 'last_name' => 'Bianchi']);
 
-    $response = $this->get("/app/{$this->tenant->slug}/students?search=Marco");
+    $response = $this->get("/app/{$this->tenant->slug}/students?search=Marco&status=all");
 
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
@@ -281,7 +298,6 @@ test('emergency contacts rispettano isolamento tenant', function () {
 
 test('suspend archivia il ciclo corrente in past_cycles', function () {
     $student = Student::factory()->create([
-        'status' => StudentStatus::Active,
         'current_cycle_started_at' => '2026-01-16',
     ]);
 
@@ -298,7 +314,6 @@ test('suspend archivia il ciclo corrente in past_cycles', function () {
 
 test('suspend senza ciclo attivo non aggiunge past_cycles', function () {
     $student = Student::factory()->create([
-        'status' => StudentStatus::Active,
         'current_cycle_started_at' => null,
     ]);
 
@@ -317,6 +332,7 @@ test('reactivate mantiene current_cycle_started_at null', function () {
     $this->put("/app/{$this->tenant->slug}/students/{$student->id}/reactivate");
 
     $student->refresh();
-    expect($student->status)->toBe(StudentStatus::Active);
+    expect($student->status)->toBeNull();
+    expect($student->effective_status)->toBe('pending');
     expect($student->current_cycle_started_at)->toBeNull();
 });

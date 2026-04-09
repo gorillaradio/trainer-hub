@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\StudentStatus;
+use App\Services\EnrollmentFeeService;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -34,7 +35,7 @@ class Student extends Model
         'past_cycles' => 'array',
     ];
 
-    protected $appends = ['effective_phone'];
+    protected $appends = ['effective_phone', 'effective_status'];
 
     protected function effectivePhone(): Attribute
     {
@@ -48,6 +49,22 @@ class Student extends Model
             }
 
             return $this->phone;
+        });
+    }
+
+    protected function effectiveStatus(): Attribute
+    {
+        return Attribute::get(function (): string {
+            if ($this->status === StudentStatus::Suspended) {
+                return StudentStatus::Suspended->value;
+            }
+
+            $enrollmentService = app(EnrollmentFeeService::class);
+            if ($enrollmentService->hasValidEnrollment($this)) {
+                return StudentStatus::Active->value;
+            }
+
+            return StudentStatus::Pending->value;
         });
     }
 

@@ -9,9 +9,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import type { Student, StudentStatus } from '@/types';
+import type { Student } from '@/types';
 import { useTenant } from '@/hooks/use-tenant';
 import { useForm } from '@inertiajs/react';
 import { Phone, Plus, Trash2, Users } from 'lucide-react';
@@ -33,14 +32,12 @@ type StudentFormData = {
     emergency_contacts: EmergencyContactFormData[];
     phone_contact_index: number | null;
     notes: string;
-    status: string;
     enrolled_at: string;
     monthly_fee_override: string;
 };
 
 type Props = {
     student?: Student;
-    statuses: StudentStatus[];
     submitLabel: string;
     formId?: string;
 };
@@ -51,7 +48,7 @@ function initPhoneContactIndex(student?: Student): number | null {
     return idx >= 0 ? idx : null;
 }
 
-export function StudentForm({ student, statuses, submitLabel, formId }: Props) {
+export function StudentForm({ student, submitLabel, formId }: Props) {
     const tenant = useTenant();
 
     const { data, setData, post, put, processing, errors, transform } = useForm<StudentFormData>({
@@ -65,7 +62,6 @@ export function StudentForm({ student, statuses, submitLabel, formId }: Props) {
         emergency_contacts: student?.emergency_contacts?.map(c => ({ name: c.name, phone: c.phone })) ?? [],
         phone_contact_index: initPhoneContactIndex(student),
         notes: student?.notes ?? '',
-        status: student?.status ?? 'active',
         enrolled_at: student?.enrolled_at ?? new Date().toISOString().split('T')[0],
         monthly_fee_override: student?.monthly_fee_override !== null && student?.monthly_fee_override !== undefined
             ? (student.monthly_fee_override / 100).toFixed(2)
@@ -327,25 +323,6 @@ export function StudentForm({ student, statuses, submitLabel, formId }: Props) {
                     <CardTitle>Iscrizione</CardTitle>
                 </CardHeader>
                 <CardContent className="grid gap-4 sm:grid-cols-2">
-                    <Field data-invalid={!!errors.status}>
-                        <FieldLabel htmlFor="status">Stato</FieldLabel>
-                        <Select value={data.status} onValueChange={(value) => setData('status', value)}>
-                            <SelectTrigger aria-invalid={!!errors.status}>
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectGroup>
-                                    {statuses.map((s) => (
-                                        <SelectItem key={s.value} value={s.value}>
-                                            {s.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectGroup>
-                            </SelectContent>
-                        </Select>
-                        {errors.status && <FieldError>{errors.status}</FieldError>}
-                    </Field>
-
                     <Field data-invalid={!!errors.enrolled_at}>
                         <FieldLabel htmlFor="enrolled_at">Data iscrizione</FieldLabel>
                         <DatePicker

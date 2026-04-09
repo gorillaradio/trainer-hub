@@ -91,9 +91,18 @@ export default function StudentsShow({ student, availableGroups, paymentData }: 
                                 <CardHeader>
                                     <div className="flex items-center justify-between">
                                         <CardTitle>Dati personali</CardTitle>
-                                        <Badge variant={statusVariant[student.status]}>
-                                            {statusLabel[student.status]}
-                                        </Badge>
+                                        <div className="flex items-center gap-2">
+                                            <Badge variant={statusVariant[student.effective_status]}>
+                                                {statusLabel[student.effective_status]}
+                                            </Badge>
+                                            {student.effective_status === 'pending' && (
+                                                <span className="text-xs text-muted-foreground">
+                                                    {paymentData.latestEnrollment
+                                                        ? 'Iscrizione scaduta'
+                                                        : 'Iscrizione non effettuata'}
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
                                 </CardHeader>
                                 <CardContent>

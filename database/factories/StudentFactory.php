@@ -22,17 +22,12 @@ class StudentFactory extends Factory
             'fiscal_code' => strtoupper(fake()->bothify('??????##?##?###?')),
             'address' => fake()->address(),
             'notes' => null,
-            'status' => StudentStatus::Active,
+            'status' => null,
             'enrolled_at' => now(),
             'monthly_fee_override' => null,
             'current_cycle_started_at' => null,
             'past_cycles' => null,
         ];
-    }
-
-    public function inactive(): static
-    {
-        return $this->state(['status' => StudentStatus::Inactive]);
     }
 
     public function suspended(): static

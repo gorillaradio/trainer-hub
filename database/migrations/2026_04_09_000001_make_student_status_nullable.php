@@ -1,0 +1,43 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        // Step 1: Soft-delete all inactive students (they are archived)
+        // Must happen before making the column nullable, while NOT NULL is still enforced
+        DB::table('students')
+            ->whereNull('deleted_at')
+            ->where('status', 'inactive')
+            ->update(['deleted_at' => now()]);
+
+        // Step 2: Make the column nullable with default null
+        Schema::table('students', function (Blueprint $table) {
+            $table->string('status')->nullable()->default(null)->change();
+        });
+
+        // Step 3: Null out all remaining non-suspended statuses (active → null)
+        DB::table('students')
+            ->whereNull('deleted_at')
+            ->where('status', '!=', 'suspended')
+            ->update(['status' => null]);
+    }
+
+    public function down(): void
+    {
+        // Step 1: Restore null status to 'active'
+        DB::table('students')
+            ->whereNull('status')
+            ->update(['status' => 'active']);
+
+        // Step 2: Restore column to non-nullable with default 'active'
+        Schema::table('students', function (Blueprint $table) {
+            $table->string('status')->nullable(false)->default('active')->change();
+        });
+    }
+};

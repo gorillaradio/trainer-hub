@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Tenant;
 
-use App\Enums\StudentStatus;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -33,7 +32,6 @@ class UpdateStudentRequest extends FormRequest
             'emergency_contacts.*.phone' => ['required', 'string', 'max:50'],
             'phone_contact_index' => ['nullable', 'integer'],
             'notes' => ['nullable', 'string', 'max:5000'],
-            'status' => ['sometimes', Rule::enum(StudentStatus::class)],
             'enrolled_at' => ['nullable', 'date'],
             'monthly_fee_override' => ['nullable', 'numeric', 'min:0'],
         ];

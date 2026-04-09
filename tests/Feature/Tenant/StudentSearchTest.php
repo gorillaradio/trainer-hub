@@ -1,10 +1,22 @@
 <?php
 
-use App\Enums\StudentStatus;
+use App\Models\EnrollmentFee;
 use App\Models\Group;
+use App\Models\Payment;
 use App\Models\Student;
 use App\Models\Tenant;
 use App\Models\User;
+
+function giveValidEnrollment(Student $student): void
+{
+    $payment = Payment::factory()->create(['student_id' => $student->id]);
+    EnrollmentFee::factory()->create([
+        'student_id' => $student->id,
+        'payment_id' => $payment->id,
+        'starts_at' => now()->subMonth(),
+        'expires_at' => now()->addMonths(11),
+    ]);
+}
 
 beforeEach(function () {
     $this->user = User::factory()->create();
@@ -21,8 +33,13 @@ afterEach(function () {
 });
 
 test('search restituisce solo studenti attivi', function () {
-    Student::factory()->create(['first_name' => 'Marco', 'status' => StudentStatus::Active]);
-    Student::factory()->inactive()->create(['first_name' => 'Luca']);
+    $active = Student::factory()->create(['first_name' => 'Marco']);
+    giveValidEnrollment($active);
+
+    // Pending student (no enrollment) — should NOT appear
+    Student::factory()->create(['first_name' => 'Luca']);
+
+    // Suspended student — should NOT appear
     Student::factory()->suspended()->create(['first_name' => 'Anna']);
 
     $response = $this->getJson("/app/{$this->tenant->slug}/students/search");
@@ -33,9 +50,14 @@ test('search restituisce solo studenti attivi', function () {
 });
 
 test('search filtra per nome', function () {
-    Student::factory()->create(['first_name' => 'Marco', 'last_name' => 'Rossi']);
-    Student::factory()->create(['first_name' => 'Luca', 'last_name' => 'Bianchi']);
-    Student::factory()->create(['first_name' => 'Anna', 'last_name' => 'Marchetti']);
+    $marco = Student::factory()->create(['first_name' => 'Marco', 'last_name' => 'Rossi']);
+    giveValidEnrollment($marco);
+
+    $luca = Student::factory()->create(['first_name' => 'Luca', 'last_name' => 'Bianchi']);
+    giveValidEnrollment($luca);
+
+    $anna = Student::factory()->create(['first_name' => 'Anna', 'last_name' => 'Marchetti']);
+    giveValidEnrollment($anna);
 
     $response = $this->getJson("/app/{$this->tenant->slug}/students/search?q=Marc");
 
@@ -46,8 +68,11 @@ test('search filtra per nome', function () {
 });
 
 test('search filtra per cognome', function () {
-    Student::factory()->create(['first_name' => 'Marco', 'last_name' => 'Rossi']);
-    Student::factory()->create(['first_name' => 'Luca', 'last_name' => 'Bianchi']);
+    $marco = Student::factory()->create(['first_name' => 'Marco', 'last_name' => 'Rossi']);
+    giveValidEnrollment($marco);
+
+    $luca = Student::factory()->create(['first_name' => 'Luca', 'last_name' => 'Bianchi']);
+    giveValidEnrollment($luca);
 
     $response = $this->getJson("/app/{$this->tenant->slug}/students/search?q=Rossi");
 
@@ -59,7 +84,10 @@ test('search filtra per cognome', function () {
 test('search con exclude_group esclude studenti già nel gruppo', function () {
     $group = Group::factory()->create();
     $studentInGroup = Student::factory()->create(['first_name' => 'Marco']);
+    giveValidEnrollment($studentInGroup);
+
     $studentNotInGroup = Student::factory()->create(['first_name' => 'Luca']);
+    giveValidEnrollment($studentNotInGroup);
 
     $group->students()->attach($studentInGroup->id);
 
@@ -72,7 +100,10 @@ test('search con exclude_group esclude studenti già nel gruppo', function () {
 });
 
 test('search limita a 10 risultati', function () {
-    Student::factory()->count(15)->create();
+    $students = Student::factory()->count(15)->create();
+    foreach ($students as $student) {
+        giveValidEnrollment($student);
+    }
 
     $response = $this->getJson("/app/{$this->tenant->slug}/students/search");
 
@@ -98,7 +129,10 @@ test('search richiede autenticazione', function () {
 });
 
 test('search senza query restituisce tutti gli studenti attivi', function () {
-    Student::factory()->count(3)->create(['status' => StudentStatus::Active]);
+    $students = Student::factory()->count(3)->create();
+    foreach ($students as $student) {
+        giveValidEnrollment($student);
+    }
 
     $response = $this->getJson("/app/{$this->tenant->slug}/students/search");
 
@@ -107,11 +141,12 @@ test('search senza query restituisce tutti gli studenti attivi', function () {
 });
 
 test('search restituisce solo id, first_name e last_name', function () {
-    Student::factory()->create([
+    $student = Student::factory()->create([
         'first_name' => 'Marco',
         'last_name' => 'Rossi',
         'email' => 'marco@example.com',
     ]);
+    giveValidEnrollment($student);
 
     $response = $this->getJson("/app/{$this->tenant->slug}/students/search");
 
@@ -122,9 +157,14 @@ test('search restituisce solo id, first_name e last_name', function () {
 });
 
 test('search ordina per cognome e nome', function () {
-    Student::factory()->create(['first_name' => 'Zara', 'last_name' => 'Bianchi']);
-    Student::factory()->create(['first_name' => 'Anna', 'last_name' => 'Bianchi']);
-    Student::factory()->create(['first_name' => 'Marco', 'last_name' => 'Rossi']);
+    $zara = Student::factory()->create(['first_name' => 'Zara', 'last_name' => 'Bianchi']);
+    giveValidEnrollment($zara);
+
+    $anna = Student::factory()->create(['first_name' => 'Anna', 'last_name' => 'Bianchi']);
+    giveValidEnrollment($anna);
+
+    $marco = Student::factory()->create(['first_name' => 'Marco', 'last_name' => 'Rossi']);
+    giveValidEnrollment($marco);
 
     $response = $this->getJson("/app/{$this->tenant->slug}/students/search");
 
