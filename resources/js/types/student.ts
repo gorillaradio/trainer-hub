@@ -24,7 +24,8 @@ export type Student = {
     }>;
     monthly_fee_override: number | null;
     notes: string | null;
-    status: 'active' | 'inactive' | 'suspended';
+    status: 'suspended' | null;
+    effective_status: 'pending' | 'active' | 'suspended';
     enrolled_at: string | null;
     created_at: string;
     updated_at: string;

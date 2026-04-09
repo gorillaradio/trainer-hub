@@ -1,11 +1,11 @@
-export const statusVariant: Record<string, 'default' | 'secondary' | 'destructive'> = {
+export const statusVariant: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+    pending: 'outline',
     active: 'default',
-    inactive: 'secondary',
     suspended: 'destructive',
 };
 
 export const statusLabel: Record<string, string> = {
+    pending: 'In attesa',
     active: 'Attivo',
-    inactive: 'Inattivo',
     suspended: 'Sospeso',
 };
